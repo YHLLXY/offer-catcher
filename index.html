@@ -236,67 +236,268 @@
         <label>📚 专业方向</label>
         <input type="text" id="major" list="majorList" placeholder="如：计算机科学、软件工程、数据科学...">
         <datalist id="majorList">
-          <option value="计算机科学与技术">
-          <option value="软件工程">
-          <option value="数据科学与大数据技术">
-          <option value="人工智能">
-          <option value="电子信息工程">
-          <option value="通信工程">
-          <option value="自动化">
-          <option value="网络工程">
-          <option value="信息安全">
-          <option value="物联网工程">
-          <option value="数字媒体技术">
-          <option value="产品设计">
-          <option value="工业设计">
-          <option value="视觉传达设计">
-          <option value="工商管理">
-          <option value="市场营销">
-          <option value="人力资源管理">
-          <option value="财务管理">
-          <option value="金融学">
-          <option value="经济学">
-          <option value="统计学">
-          <option value="数学与应用数学">
-          <option value="信息管理与信息系统">
-          <option value="心理学">
-          <option value="新闻传播学">
-          <option value="英语">
+          <!-- 经济学 -->
+          <option value="经济学 · 经济学">          <option value="经济学 · 经济统计学">
+          <option value="经济学 · 国民经济管理">    <option value="经济学 · 金融学">
+          <option value="经济学 · 金融工程">        <option value="经济学 · 保险学">
+          <option value="经济学 · 投资学">          <option value="经济学 · 国际经济与贸易">
+          <option value="经济学 · 财政学">          <option value="经济学 · 税收学">
+          <!-- 管理学 -->
+          <option value="管理学 · 工商管理">        <option value="管理学 · 市场营销">
+          <option value="管理学 · 会计学">          <option value="管理学 · 财务管理">
+          <option value="管理学 · 人力资源管理">    <option value="管理学 · 审计学">
+          <option value="管理学 · 物流管理">        <option value="管理学 · 供应链管理">
+          <option value="管理学 · 电子商务">        <option value="管理学 · 旅游管理">
+          <option value="管理学 · 酒店管理">        <option value="管理学 · 公共事业管理">
+          <option value="管理学 · 行政管理">        <option value="管理学 · 劳动与社会保障">
+          <option value="管理学 · 土地资源管理">    <option value="管理学 · 信息管理与信息系统">
+          <option value="管理学 · 工程管理">        <option value="管理学 · 工程造价">
+          <option value="管理学 · 大数据管理与应用"><option value="管理学 · 文化产业管理">
+          <!-- 工学-计算机与电子信息类 -->
+          <option value="工学 · 计算机科学与技术">  <option value="工学 · 软件工程">
+          <option value="工学 · 网络工程">          <option value="工学 · 信息安全">
+          <option value="工学 · 物联网工程">        <option value="工学 · 数据科学与大数据技术">
+          <option value="工学 · 人工智能">          <option value="工学 · 智能科学与技术">
+          <option value="工学 · 电子与计算机工程">  <option value="工学 · 空间信息与数字技术">
+          <option value="工学 · 电子信息工程">      <option value="工学 · 电子科学与技术">
+          <option value="工学 · 通信工程">          <option value="工学 · 微电子科学与工程">
+          <option value="工学 · 光电信息科学与工程"><option value="工学 · 集成电路设计与集成系统">
+          <option value="工学 · 自动化">            <option value="工学 · 机器人工程">
+          <option value="工学 · 数字媒体技术">      <option value="工学 · 虚拟现实技术">
+          <option value="工学 · 区块链工程">        <option value="工学 · 密码科学与技术">
+          <!-- 工学-机械与电气类 -->
+          <option value="工学 · 机械工程">          <option value="工学 · 机械设计制造及其自动化">
+          <option value="工学 · 车辆工程">          <option value="工学 · 智能制造工程">
+          <option value="工学 · 测控技术与仪器">    <option value="工学 · 电气工程及其自动化">
+          <option value="工学 · 能源与动力工程">    <option value="工学 · 新能源科学与工程">
+          <!-- 工学-土木建筑类 -->
+          <option value="工学 · 建筑学">            <option value="工学 · 城乡规划">
+          <option value="工学 · 风景园林">          <option value="工学 · 土木工程">
+          <option value="工学 · 建筑环境与能源应用工程"><option value="工学 · 给排水科学与工程">
+          <option value="工学 · 水利水电工程">      <option value="工学 · 测绘工程">
+          <!-- 工学-化工材料类 -->
+          <option value="工学 · 化学工程与工艺">    <option value="工学 · 制药工程">
+          <option value="工学 · 材料科学与工程">    <option value="工学 · 高分子材料与工程">
+          <option value="工学 · 纳米材料与技术">    <option value="工学 · 新能源材料与器件">
+          <!-- 工学-环境与安全类 -->
+          <option value="工学 · 环境工程">          <option value="工学 · 环境科学">
+          <option value="工学 · 安全工程">          <option value="工学 · 食品科学与工程">
+          <option value="工学 · 食品质量与安全">    <option value="工学 · 生物工程">
+          <option value="工学 · 生物医学工程">      <option value="工学 · 航空航天工程">
+          <option value="工学 · 船舶与海洋工程">    <option value="工学 · 交通运输">
+          <option value="工学 · 交通工程">          <option value="工学 · 飞行技术">
+          <!-- 理学 -->
+          <option value="理学 · 数学与应用数学">    <option value="理学 · 信息与计算科学">
+          <option value="理学 · 物理学">            <option value="理学 · 应用物理学">
+          <option value="理学 · 化学">              <option value="理学 · 应用化学">
+          <option value="理学 · 地理科学">          <option value="理学 · 大气科学">
+          <option value="理学 · 海洋科学">          <option value="理学 · 生物科学">
+          <option value="理学 · 生物技术">          <option value="理学 · 生态学">
+          <option value="理学 · 统计学">            <option value="理学 · 应用统计学">
+          <option value="理学 · 心理学">            <option value="理学 · 应用心理学">
+          <!-- 文学与新闻传播 -->
+          <option value="文学 · 汉语言文学">        <option value="文学 · 汉语国际教育">
+          <option value="文学 · 英语">              <option value="文学 · 日语">
+          <option value="文学 · 德语">              <option value="文学 · 法语">
+          <option value="文学 · 俄语">              <option value="文学 · 西班牙语">
+          <option value="文学 · 翻译">              <option value="文学 · 商务英语">
+          <option value="文学 · 新闻学">            <option value="文学 · 广播电视学">
+          <option value="文学 · 广告学">            <option value="文学 · 传播学">
+          <option value="文学 · 网络与新媒体">      <option value="文学 · 编辑出版学">
+          <!-- 法学与社会学 -->
+          <option value="法学 · 法学">              <option value="法学 · 知识产权">
+          <option value="法学 · 政治学与行政学">    <option value="法学 · 国际政治">
+          <option value="法学 · 社会学">            <option value="法学 · 社会工作">
+          <option value="法学 · 思想政治教育">      <option value="法学 · 治安学">
+          <!-- 教育学 -->
+          <option value="教育学 · 教育学">          <option value="教育学 · 教育技术学">
+          <option value="教育学 · 学前教育">        <option value="教育学 · 小学教育">
+          <option value="教育学 · 特殊教育">        <option value="教育学 · 体育教育">
+          <option value="教育学 · 运动训练">        <option value="教育学 · 社会体育指导与管理">
+          <!-- 医学 -->
+          <option value="医学 · 临床医学">          <option value="医学 · 口腔医学">
+          <option value="医学 · 预防医学">          <option value="医学 · 中医学">
+          <option value="医学 · 药学">              <option value="医学 · 护理学">
+          <option value="医学 · 医学检验技术">      <option value="医学 · 医学影像学">
+          <option value="医学 · 公共卫生管理">      <option value="医学 · 中药学">
+          <!-- 艺术学 -->
+          <option value="艺术学 · 音乐学">          <option value="艺术学 · 美术学">
+          <option value="艺术学 · 设计学">          <option value="艺术学 · 视觉传达设计">
+          <option value="艺术学 · 环境设计">        <option value="艺术学 · 产品设计">
+          <option value="艺术学 · 数字媒体艺术">    <option value="艺术学 · 动画">
+          <option value="艺术学 · 戏剧影视文学">    <option value="艺术学 · 广播电视编导">
+          <option value="艺术学 · 播音与主持艺术">  <option value="艺术学 · 服装与服饰设计">
+          <option value="艺术学 · 工艺美术">        <option value="艺术学 · 书法学">
+          <!-- 农学 -->
+          <option value="农学 · 农学">              <option value="农学 · 园艺">
+          <option value="农学 · 植物保护">          <option value="农学 · 动物科学">
+          <option value="农学 · 林学">              <option value="农学 · 园林">
+          <option value="农学 · 水产养殖学">        <option value="农学 · 农业资源与环境">
+          <!-- 历史学与哲学 -->
+          <option value="历史学 · 历史学">          <option value="历史学 · 考古学">
+          <option value="历史学 · 文物与博物馆学">  <option value="哲学 · 哲学">
+          <option value="哲学 · 逻辑学">            <option value="哲学 · 伦理学">
         </datalist>
       </div>
       <div class="form-group">
         <label>🏫 毕业院校</label>
         <input type="text" id="school" list="schoolList" placeholder="如：清华大学">
         <datalist id="schoolList">
-          <option value="清华大学">
-          <option value="北京大学">
-          <option value="浙江大学">
-          <option value="上海交通大学">
-          <option value="复旦大学">
-          <option value="南京大学">
-          <option value="中国科学技术大学">
-          <option value="华中科技大学">
-          <option value="武汉大学">
-          <option value="西安交通大学">
-          <option value="哈尔滨工业大学">
-          <option value="中山大学">
-          <option value="同济大学">
-          <option value="北京航空航天大学">
-          <option value="东南大学">
-          <option value="中国人民大学">
-          <option value="南开大学">
-          <option value="天津大学">
-          <option value="山东大学">
-          <option value="厦门大学">
-          <option value="吉林大学">
-          <option value="华南理工大学">
-          <option value="四川大学">
-          <option value="电子科技大学">
-          <option value="北京邮电大学">
-          <option value="深圳大学">
-          <option value="暨南大学">
-          <option value="华东师范大学">
-          <option value="北京理工大学">
+          <!-- 北京 -->
+          <option value="清华大学">            <option value="北京大学">
+          <option value="中国人民大学">        <option value="北京航空航天大学">
+          <option value="北京理工大学">        <option value="北京师范大学">
+          <option value="中国农业大学">        <option value="北京科技大学">
+          <option value="北京邮电大学">        <option value="北京交通大学">
+          <option value="北京工业大学">        <option value="北京化工大学">
+          <option value="北京林业大学">        <option value="北京中医药大学">
+          <option value="中央财经大学">        <option value="中国政法大学">
+          <option value="对外经济贸易大学">    <option value="华北电力大学">
+          <option value="中国地质大学(北京)">  <option value="中国矿业大学(北京)">
+          <option value="中国石油大学(北京)">  <option value="中国传媒大学">
+          <option value="首都师范大学">        <option value="北京外国语大学">
+          <option value="北京体育大学">        <option value="中央民族大学">
+          <option value="北京建筑大学">        <option value="北方工业大学">
+          <option value="北京工商大学">        <option value="北京物资学院">
+          <option value="北京信息科技大学">    <option value="北京联合大学">
+          <option value="中国科学院大学">      <option value="中国社会科学院大学">
+          <!-- 上海 -->
+          <option value="复旦大学">            <option value="上海交通大学">
+          <option value="同济大学">            <option value="华东师范大学">
+          <option value="华东理工大学">        <option value="上海财经大学">
+          <option value="上海大学">            <option value="东华大学">
+          <option value="上海外国语大学">      <option value="华东政法大学">
+          <option value="上海理工大学">        <option value="上海海事大学">
+          <option value="上海海洋大学">        <option value="上海师范大学">
+          <option value="上海对外经贸大学">    <option value="上海工程技术大学">
+          <!-- 广东 -->
+          <option value="中山大学">            <option value="华南理工大学">
+          <option value="暨南大学">            <option value="华南师范大学">
+          <option value="华南农业大学">        <option value="南方医科大学">
+          <option value="广东工业大学">        <option value="广东外语外贸大学">
+          <option value="深圳大学">            <option value="广州大学">
+          <option value="汕头大学">            <option value="南方科技大学">
+          <option value="东莞理工学院">        <option value="佛山科学技术学院">
+          <option value="广东财经大学">        <option value="广州医科大学">
+          <option value="北京师范大学(珠海)">  <option value="香港中文大学(深圳)">
+          <!-- 浙江 -->
+          <option value="浙江大学">            <option value="浙江工业大学">
+          <option value="浙江师范大学">        <option value="宁波大学">
+          <option value="杭州电子科技大学">    <option value="浙江工商大学">
+          <option value="浙江理工大学">        <option value="温州大学">
+          <option value="中国美术学院">        <option value="浙江财经大学">
+          <option value="杭州师范大学">        <option value="温州医科大学">
+          <!-- 江苏 -->
+          <option value="南京大学">            <option value="东南大学">
+          <option value="南京航空航天大学">    <option value="南京理工大学">
+          <option value="河海大学">            <option value="苏州大学">
+          <option value="南京师范大学">        <option value="中国矿业大学">
+          <option value="江南大学">            <option value="南京农业大学">
+          <option value="中国药科大学">        <option value="南京邮电大学">
+          <option value="南京工业大学">        <option value="江苏大学">
+          <option value="扬州大学">            <option value="南京信息工程大学">
+          <option value="西交利物浦大学">      <option value="南京林业大学">
+          <!-- 湖北 -->
+          <option value="武汉大学">            <option value="华中科技大学">
+          <option value="华中师范大学">        <option value="武汉理工大学">
+          <option value="华中农业大学">        <option value="中国地质大学(武汉)">
+          <option value="中南财经政法大学">    <option value="湖北大学">
+          <option value="武汉科技大学">        <option value="三峡大学">
+          <option value="湖北工业大学">        <option value="武汉工程大学">
+          <!-- 湖南 -->
+          <option value="国防科技大学">        <option value="中南大学">
+          <option value="湖南大学">            <option value="湖南师范大学">
+          <option value="湘潭大学">            <option value="长沙理工大学">
+          <option value="湖南科技大学">        <option value="中南林业科技大学">
+          <option value="南华大学">            <option value="湖南工业大学">
+          <!-- 四川与重庆 -->
+          <option value="四川大学">            <option value="电子科技大学">
+          <option value="西南交通大学">        <option value="西南财经大学">
+          <option value="四川农业大学">        <option value="成都理工大学">
+          <option value="西南科技大学">        <option value="重庆大学">
+          <option value="西南大学">            <option value="西南政法大学">
+          <option value="重庆邮电大学">        <option value="重庆交通大学">
+          <option value="重庆理工大学">        <option value="四川外国语大学">
+          <!-- 陕西 -->
+          <option value="西安交通大学">        <option value="西北工业大学">
+          <option value="西安电子科技大学">    <option value="西北大学">
+          <option value="西北农林科技大学">    <option value="陕西师范大学">
+          <option value="长安大学">            <option value="西安理工大学">
+          <option value="西安建筑科技大学">    <option value="西安科技大学">
+          <option value="西安邮电大学">        <option value="延安大学">
+          <!-- 天津 -->
+          <option value="南开大学">            <option value="天津大学">
+          <option value="天津医科大学">        <option value="天津师范大学">
+          <option value="天津工业大学">        <option value="天津科技大学">
+          <option value="天津财经大学">        <option value="中国民航大学">
+          <!-- 山东 -->
+          <option value="山东大学">            <option value="中国海洋大学">
+          <option value="中国石油大学(华东)">  <option value="青岛大学">
+          <option value="山东科技大学">        <option value="青岛科技大学">
+          <option value="济南大学">            <option value="山东师范大学">
+          <option value="曲阜师范大学">        <option value="烟台大学">
+          <!-- 福建 -->
+          <option value="厦门大学">            <option value="福州大学">
+          <option value="福建师范大学">        <option value="华侨大学">
+          <option value="集美大学">            <option value="福建农林大学">
+          <!-- 安徽 -->
+          <option value="中国科学技术大学">    <option value="合肥工业大学">
+          <option value="安徽大学">            <option value="安徽师范大学">
+          <option value="安徽理工大学">        <option value="安徽农业大学">
+          <!-- 河南 -->
+          <option value="郑州大学">            <option value="河南大学">
+          <option value="河南师范大学">        <option value="河南理工大学">
+          <option value="河南科技大学">        <option value="河南工业大学">
+          <option value="华北水利水电大学">    <option value="郑州轻工业大学">
+          <!-- 河北 -->
+          <option value="河北工业大学">        <option value="燕山大学">
+          <option value="河北大学">            <option value="河北师范大学">
+          <option value="河北科技大学">        <option value="华北理工大学">
+          <option value="石家庄铁道大学">      <option value="河北经贸大学">
+          <!-- 辽宁 -->
+          <option value="大连理工大学">        <option value="东北大学">
+          <option value="大连海事大学">        <option value="辽宁大学">
+          <option value="东北财经大学">        <option value="大连交通大学">
+          <option value="沈阳工业大学">        <option value="沈阳航空航天大学">
+          <!-- 吉林 -->
+          <option value="吉林大学">            <option value="东北师范大学">
+          <option value="长春理工大学">        <option value="延边大学">
+          <option value="东北电力大学">        <option value="吉林农业大学">
+          <!-- 黑龙江 -->
+          <option value="哈尔滨工业大学">      <option value="哈尔滨工程大学">
+          <option value="东北林业大学">        <option value="东北农业大学">
+          <option value="哈尔滨理工大学">      <option value="黑龙江大学">
+          <!-- 江西 -->
+          <option value="南昌大学">            <option value="江西财经大学">
+          <option value="江西师范大学">        <option value="华东交通大学">
+          <option value="东华理工大学">        <option value="江西理工大学">
+          <!-- 山西 -->
+          <option value="太原理工大学">        <option value="山西大学">
+          <option value="中北大学">            <option value="山西财经大学">
+          <!-- 广西 -->
+          <option value="广西大学">            <option value="广西师范大学">
+          <option value="桂林电子科技大学">    <option value="广西医科大学">
+          <!-- 云南 -->
+          <option value="云南大学">            <option value="昆明理工大学">
+          <option value="云南师范大学">        <option value="云南财经大学">
+          <!-- 贵州 -->
+          <option value="贵州大学">            <option value="贵州师范大学">
+          <option value="贵州财经大学">        <option value="遵义医科大学">
+          <!-- 海南 -->
+          <option value="海南大学">            <option value="海南师范大学">
+          <!-- 甘肃 -->
+          <option value="兰州大学">            <option value="兰州理工大学">
+          <option value="西北师范大学">        <option value="兰州交通大学">
+          <!-- 宁夏青海西藏 -->
+          <option value="宁夏大学">            <option value="青海大学">
+          <option value="西藏大学">            <option value="新疆大学">
+          <option value="石河子大学">          <option value="内蒙古大学">
+          <!-- 港澳台及中外合办 -->
+          <option value="香港大学">            <option value="香港中文大学">
+          <option value="香港科技大学">        <option value="香港城市大学">
+          <option value="香港理工大学">        <option value="澳门大学">
+          <option value="宁波诺丁汉大学">      <option value="上海纽约大学">
+          <option value="昆山杜克大学">        <option value="温州肯恩大学">
         </datalist>
       </div>
       <div class="form-group">
@@ -328,34 +529,120 @@
         <label>🏙️ 期望工作城市</label>
         <input type="text" id="city" list="cityList" placeholder="如：深圳、北京、上海...">
         <datalist id="cityList">
-          <option value="深圳">
-          <option value="北京">
-          <option value="上海">
-          <option value="广州">
-          <option value="杭州">
-          <option value="成都">
-          <option value="武汉">
-          <option value="南京">
-          <option value="西安">
-          <option value="长沙">
-          <option value="重庆">
-          <option value="苏州">
-          <option value="天津">
-          <option value="合肥">
-          <option value="厦门">
-          <option value="福州">
-          <option value="郑州">
-          <option value="济南">
-          <option value="青岛">
-          <option value="大连">
-          <option value="沈阳">
-          <option value="昆明">
-          <option value="贵阳">
-          <option value="南宁">
-          <option value="海口">
-          <option value="珠海">
-          <option value="东莞">
-          <option value="佛山">
+          <!-- 🔥 热门城市 -->
+          <option value="🔸 深圳">          <option value="🔸 北京">
+          <option value="🔸 上海">          <option value="🔸 广州">
+          <option value="🔸 杭州">          <option value="🔸 成都">
+          <option value="🔸 武汉">          <option value="🔸 南京">
+          <option value="🔸 西安">          <option value="🔸 重庆">
+          <option value="🔸 长沙">          <option value="🔸 苏州">
+          <!-- A-B -->
+          <option value="鞍山">            <option value="安庆">
+          <option value="安阳">            <option value="澳门">
+          <option value="保定">            <option value="宝鸡">
+          <option value="包头">            <option value="北海">
+          <option value="蚌埠">            <option value="滨州">
+          <!-- C -->
+          <option value="长春">            <option value="长沙">
+          <option value="常州">            <option value="成都">
+          <option value="重庆">            <option value="滁州">
+          <option value="常德">            <option value="郴州">
+          <option value="潮州">            <option value="沧州">
+          <!-- D -->
+          <option value="大连">            <option value="大庆">
+          <option value="大同">            <option value="东莞">
+          <option value="德州">            <option value="东营">
+          <option value="德阳">            <option value="丹东">
+          <!-- E -->
+          <option value="鄂尔多斯">        <option value="恩施">
+          <!-- F -->
+          <option value="福州">            <option value="佛山">
+          <option value="抚顺">            <option value="阜阳">
+          <option value="抚州">            <option value="防城港">
+          <!-- G -->
+          <option value="广州">            <option value="贵阳">
+          <option value="桂林">            <option value="赣州">
+          <option value="广元">            <option value="贵港">
+          <!-- H -->
+          <option value="杭州">            <option value="哈尔滨">
+          <option value="合肥">            <option value="海口">
+          <option value="呼和浩特">        <option value="邯郸">
+          <option value="惠州">            <option value="淮安">
+          <option value="湖州">            <option value="衡阳">
+          <option value="黄石">            <option value="黄山">
+          <option value="河源">            <option value="淮北">
+          <!-- J -->
+          <option value="济南">            <option value="金华">
+          <option value="嘉兴">            <option value="济宁">
+          <option value="吉林">            <option value="锦州">
+          <option value="荆州">            <option value="九江">
+          <option value="焦作">            <option value="揭阳">
+          <option value="江门">            <option value="晋中">
+          <!-- K -->
+          <option value="昆明">            <option value="开封">
+          <option value="喀什">            <option value="克拉玛依">
+          <!-- L -->
+          <option value="拉萨">            <option value="兰州">
+          <option value="洛阳">            <option value="柳州">
+          <option value="连云港">          <option value="临沂">
+          <option value="辽阳">            <option value="泸州">
+          <option value="丽江">            <option value="六盘水">
+          <option value="廊坊">            <option value="聊城">
+          <!-- M -->
+          <option value="绵阳">            <option value="马鞍山">
+          <option value="茂名">            <option value="梅州">
+          <option value="牡丹江">          <option value="眉山">
+          <!-- N -->
+          <option value="南京">            <option value="宁波">
+          <option value="南昌">            <option value="南宁">
+          <option value="南通">            <option value="南阳">
+          <option value="宁德">            <option value="内江">
+          <!-- P -->
+          <option value="莆田">            <option value="平顶山">
+          <option value="盘锦">            <option value="攀枝花">
+          <!-- Q -->
+          <option value="青岛">            <option value="泉州">
+          <option value="秦皇岛">          <option value="齐齐哈尔">
+          <option value="衢州">            <option value="钦州">
+          <option value="清远">            <option value="曲靖">
+          <!-- R -->
+          <option value="日照">            <option value="瑞安">
+          <!-- S -->
+          <option value="深圳">            <option value="上海">
+          <option value="苏州">            <option value="沈阳">
+          <option value="石家庄">          <option value="汕头">
+          <option value="三亚">            <option value="绍兴">
+          <option value="十堰">            <option value="宿迁">
+          <option value="商丘">            <option value="遂宁">
+          <!-- T -->
+          <option value="天津">            <option value="太原">
+          <option value="唐山">            <option value="台州">
+          <option value="泰安">            <option value="天水">
+          <option value="铁岭">            <option value="通化">
+          <!-- W -->
+          <option value="武汉">            <option value="无锡">
+          <option value="温州">            <option value="芜湖">
+          <option value="威海">            <option value="潍坊">
+          <option value="乌鲁木齐">        <option value="渭南">
+          <!-- X -->
+          <option value="西安">            <option value="厦门">
+          <option value="徐州">            <option value="襄阳">
+          <option value="湘潭">            <option value="邢台">
+          <option value="咸阳">            <option value="西宁">
+          <option value="西双版纳">        <option value="新乡">
+          <!-- Y -->
+          <option value="扬州">            <option value="烟台">
+          <option value="宜昌">            <option value="银川">
+          <option value="盐城">            <option value="岳阳">
+          <option value="运城">            <option value="榆林">
+          <option value="延吉">            <option value="宜春">
+          <!-- Z -->
+          <option value="郑州">            <option value="珠海">
+          <option value="镇江">            <option value="中山">
+          <option value="漳州">            <option value="淄博">
+          <option value="湛江">            <option value="株洲">
+          <option value="舟山">            <option value="自贡">
+          <option value="遵义">            <option value="张家口">
         </datalist>
       </div>
       <div class="form-group full">
