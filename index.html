@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offer捕手 - AI求职智能匹配智能体</title>
+<style>
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    color: white;
+    padding: 32px 24px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120%;
+    height: 60px;
+    background: var(--bg);
+    border-radius: 50% 50% 0 0;
+  }
+  .header .logo { font-size: 48px; margin-bottom: 12px; }
+  .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .header p { font-size: 16px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; margin-top: -10px; }
+
+  /* Steps */
+  .steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+  .step {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px; background: var(--card); border-radius: 50px;
+    box-shadow: var(--shadow); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
+  }
+  .step .num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--border); color: var(--text-light);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; transition: all 0.3s;
+  }
+  .step.active { border-color: var(--primary); color: var(--primary); }
+  .step.active .num { background: var(--primary); color: white; }
+  .step.done { border-color: var(--success); color: var(--success); }
+  .step.done .num { background: var(--success); color: white; }
+
+  /* Cards */
+  .card {
+    background: var(--card); border-radius: 16px; padding: 32px;
+    box-shadow: var(--shadow); margin-bottom: 24px;
+  }
+  .card h2 { font-size: 22px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .card .subtitle { color: var(--text-light); font-size: 14px; margin-bottom: 24px; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-weight: 600; font-size: 14px; color: var(--text); }
+  .form-group label .icon { margin-right: 4px; }
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px;
+    font-size: 14px; transition: border-color 0.3s; font-family: inherit;
+    background: #f8fafc;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary); background: white;
+  }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  /* Skills tags */
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-tag {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    cursor: pointer; transition: all 0.2s; border: 2px solid var(--border);
+    background: white; user-select: none;
+  }
+  .skill-tag:hover { border-color: var(--primary); }
+  .skill-tag.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+  /* Buttons */
+  .btn {
+    padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.3s; border: none; display: inline-flex;
+    align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+  .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-outline:hover { background: #f5f3ff; }
+  .btn-lg { padding: 14px 36px; font-size: 16px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+  /* Results */
+  .results { display: none; }
+  .results.show { display: block; }
+
+  /* Job Card */
+  .job-card {
+    border: 2px solid var(--border); border-radius: 14px; padding: 24px;
+    margin-bottom: 16px; transition: all 0.3s; cursor: pointer;
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .job-card:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(99,102,241,0.1); }
+  .job-card .match-badge {
+    min-width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px; color: white;
+  }
+  .match-high { background: linear-gradient(135deg, #10b981, #34d399); }
+  .match-medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+  .match-low { background: linear-gradient(135deg, #ef4444, #f87171); }
+  .job-card .job-info { flex: 1; }
+  .job-card .job-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .job-card .job-company { color: var(--text-light); font-size: 14px; margin-bottom: 8px; }
+  .job-card .job-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .job-tag {
+    padding: 4px 10px; background: #f1f5f9; border-radius: 6px;
+    font-size: 12px; color: var(--text-light);
+  }
+  .job-card .job-reason { margin-top: 12px; padding: 12px; background: #fefce8; border-radius: 8px; font-size: 13px; color: #92400e; }
+
+  /* Radar Chart */
+  .radar-container { width: 100%; max-width: 400px; margin: 0 auto; }
+  .radar-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 16px; }
+  .radar-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .radar-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* Analysis */
+  .analysis-section { margin-top: 16px; }
+  .analysis-item {
+    padding: 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 12px;
+    border-left: 4px solid var(--primary);
+  }
+  .analysis-item.strength { border-left-color: var(--success); }
+  .analysis-item.weakness { border-left-color: var(--warning); }
+  .analysis-item.suggestion { border-left-color: var(--primary); }
+  .analysis-item h4 { font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+
+  /* Loading */
+  .loading {
+    display: none; text-align: center; padding: 60px 20px;
+  }
+  .loading.show { display: block; }
+  .spinner {
+    width: 48px; height: 48px; border: 4px solid var(--border);
+    border-top-color: var(--primary); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: var(--text-light); font-size: 14px; margin-top: 8px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: 24px; right: 24px; padding: 14px 24px;
+    border-radius: 10px; color: white; font-weight: 500; z-index: 1000;
+    animation: slideIn 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Section hidden */
+  .section-hidden { display: none; }
+  .section-hidden.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🎯</div>
+  <h1>Offer 捕手</h1>
+  <p>AI 驱动的智能求职匹配引擎 —— 让你的简历精准命中心仪岗位</p>
+</div>
+
+<div class="container">
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" data-step="1">
+      <span class="num">1</span> 填写背景信息
+    </div>
+    <div class="step" data-step="2">
+      <span class="num">2</span> 智能岗位匹配
+    </div>
+    <div class="step" data-step="3">
+      <span class="num">3</span> 简历分析优化
+    </div>
+  </div>
+
+  <!-- Step 1: Profile Input -->
+  <div class="card" id="section-profile">
+    <h2>📋 个人信息</h2>
+    <p class="subtitle">请尽可能详细地填写你的背景信息，AI 将基于此为你精准匹配岗位</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>🎓 最高学历</label>
+        <select id="education">
+          <option value="">请选择</option>
+          <option value="本科">本科</option>
+          <option value="硕士">硕士</option>
+          <option value="博士">博士</option>
+          <option value="大专">大专</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>📚 专业方向</label>
+        <input type="text" id="major" placeholder="如：计算机科学、软件工程、数据科学...">
+      </div>
+      <div class="form-group">
+        <label>🏫 毕业院校</label>
+        <input type="text" id="school" placeholder="如：清华大学">
+      </div>
+      <div class="form-group">
+        <label>📅 毕业年份</label>
+        <select id="gradYear">
+          <option value="">请选择</option>
+          <option value="2026">2026年</option>
+          <option value="2027">2027年</option>
+          <option value="2028">2028年</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>💼 期望岗位类型</label>
+        <select id="targetRole">
+          <option value="">请选择</option>
+          <option value="技术研发">技术研发</option>
+          <option value="产品经理">产品经理</option>
+          <option value="数据分析">数据分析</option>
+          <option value="UI/UX设计">UI/UX设计</option>
+          <option value="运营">运营</option>
+          <option value="市场">市场</option>
+          <option value="人力资源">人力资源</option>
+          <option value="销售">销售</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>🏙️ 期望工作城市</label>
+        <input type="text" id="city" placeholder="如：深圳、北京、上海...">
+      </div>
+      <div class="form-group full">
+        <label>🛠️ 技能标签（点击选择）</label>
+        <div class="skill-tags" id="skillTags">
+          <span class="skill-tag" data-skill="Python">Python</span>
+          <span class="skill-tag" data-skill="Java">Java</span>
+          <span class="skill-tag" data-skill="JavaScript">JavaScript</span>
+          <span class="skill-tag" data-skill="C++">C++</span>
+          <span class="skill-tag" data-skill="Go">Go</span>
+          <span class="skill-tag" data-skill="Rust">Rust</span>
+          <span class="skill-tag" data-skill="SQL">SQL</span>
+          <span class="skill-tag" data-skill="React">React</span>
+          <span class="skill-tag" data-skill="Vue">Vue</span>
+          <span class="skill-tag" data-skill="Node.js">Node.js</span>
+          <span class="skill-tag" data-skill="Docker">Docker</span>
+          <span class="skill-tag" data-skill="Kubernetes">Kubernetes</span>
+          <span class="skill-tag" data-skill="AI/ML">AI/ML</span>
+          <span class="skill-tag" data-skill="数据分析">数据分析</span>
+          <span class="skill-tag" data-skill="产品设计">产品设计</span>
+          <span class="skill-tag" data-skill="Figma">Figma</span>
+          <span class="skill-tag" data-skill="项目管理">项目管理</span>
+          <span class="skill-tag" data-skill="用户研究">用户研究</span>
+          <span class="skill-tag" data-skill="AIGC">AIGC</span>
+          <span class="skill-tag" data-skill="Linux">Linux</span>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>📝 实习/项目经历简述</label>
+        <textarea id="experience" placeholder="请描述你的实习或项目经历，例如：在XX公司实习，负责XX项目，使用XX技术实现了XX功能..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label>💡 职业兴趣与自我评价</label>
+        <textarea id="selfEval" placeholder="描述你的职业兴趣方向、个人优势、以及你理想的工作是什么样的..."></textarea>
+      </div>
+    </div>
+    <div style="margin-top:24px; text-align:right;">
+      <button class="btn btn-primary btn-lg" onclick="startMatching()">
+        🚀 开始智能匹配
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="font-weight:600;">AI 正在分析你的背景信息...</p>
+    <p class="loading-text" id="loadingDetail">正在解析技能图谱...</p>
+  </div>
+
+  <!-- Step 2: Job Matching Results -->
+  <div class="card section-hidden" id="section-results">
+    <h2>🎯 岗位匹配结果</h2>
+    <p class="subtitle">AI 已为你从海量岗位中筛选出最匹配的工作机会，按匹配度排序</p>
+    <div id="jobResults"></div>
+    <div style="text-align:center; margin-top:24px;">
+      <button class="btn btn-primary btn-lg" onclick="goToResumeAnalysis()">
+        📄 下一步：分析我的简历匹配度 →
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: Resume Analysis -->
+  <div class="card section-hidden" id="section-resume">
+    <h2>📄 简历匹配深度分析</h2>
+    <p class="subtitle">粘贴你的简历内容和你心仪的岗位JD，AI 将深度分析匹配度并给出优化建议</p>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>📋 请粘贴你的简历内容</label>
+        <textarea id="resumeContent" placeholder="请将你的简历内容粘贴在这里（支持纯文本）...&#10;&#10;例如：&#10;教育背景：XX大学 计算机科学 本科 2026届&#10;实习经历：XX科技公司 前端开发实习生...&#10;项目经历：参与XX项目，负责...&#10;技能：Python, JavaScript, React..." rows="8"></textarea>
+      </div>
+      <div class="form-group full">
+        <label>🎯 目标岗位描述 (JD)</label>
+        <textarea id="jobDescription" placeholder="请粘贴你想应聘的岗位JD...&#10;&#10;例如：&#10;岗位：前端开发工程师&#10;要求：熟悉React/Vue，了解Webpack...&#10;加分项：有开源项目经验，熟悉CI/CD..." rows="6"></textarea>
+      </div>
+    </div>
+    <div style="margin-top:16px; text-align:right;">
+      <button class="btn btn-outline" onclick="document.getElementById('section-resume').classList.remove('show');document.getElementById('section-results').classList.add('show');" style="margin-right:8px;">
+        ← 返回匹配结果
+      </button>
+      <button class="btn btn-primary btn-lg" onclick="analyzeResume()">
+        🔍 开始深度分析
+      </button>
+    </div>
+    <div id="resumeAnalysis"></div>
+  </div>
+</div>
+
+<script>
+// State
+let userProfile = {};
+let matchedJobs = [];
+
+// Skill tags interaction
+document.querySelectorAll('.skill-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    tag.classList.toggle('selected');
+  });
+});
+
+// Job database (simulated)
+const jobDatabase = [
+  { id:1, title:'前端开发工程师', company:'腾讯', dept:'微信事业群', city:'深圳', salary:'25-40K',
+    tags:['JavaScript','React','Vue','Node.js'], degree:'本科',
+    desc:'参与微信生态前端开发，负责核心业务的前端架构设计与实现。',
+    matchKeys: ['JavaScript','React','Vue','前端','Web'] },
+  { id:2, title:'后端开发工程师', company:'腾讯', dept:'云与智慧产业', city:'深圳', salary:'25-45K',
+    tags:['Go','Java','Docker','Kubernetes'], degree:'本科',
+    desc:'负责腾讯云核心服务的后端开发，构建高并发分布式系统。',
+    matchKeys: ['Go','Java','Docker','Kubernetes','后端','分布式'] },
+  { id:3, title:'AI 算法工程师', company:'腾讯', dept:'AI Lab', city:'北京', salary:'30-50K',
+    tags:['Python','AI/ML','深度学习','NLP'], degree:'硕士',
+    desc:'参与大模型训练与推理优化，探索AI前沿技术落地。',
+    matchKeys: ['Python','AI','机器学习','深度学习','NLP','算法'] },
+  { id:4, title:'产品经理', company:'腾讯', dept:'互动娱乐', city:'上海', salary:'22-35K',
+    tags:['产品设计','用户研究','数据分析','项目管理'], degree:'本科',
+    desc:'负责游戏社交功能的产品策划与迭代，驱动用户增长。',
+    matchKeys: ['产品','用户研究','数据分析','项目管理'] },
+  { id:5, title:'数据分析师', company:'腾讯', dept:'CDG', city:'深圳', salary:'20-35K',
+    tags:['SQL','Python','数据分析','可视化'], degree:'本科',
+    desc:'基于海量用户数据进行分析建模，驱动业务决策。',
+    matchKeys: ['SQL','Python','数据分析','统计','可视化'] },
+  { id:6, title:'UI/UX设计师', company:'腾讯', dept:'设计部', city:'深圳', salary:'20-30K',
+    tags:['Figma','用户研究','产品设计','交互设计'], degree:'本科',
+    desc:'负责腾讯系产品的用户体验设计，打造极致的用户体验。',
+    matchKeys: ['设计','Figma','用户研究','交互','UI','UX'] },
+  { id:7, title:'DevOps工程师', company:'腾讯', dept:'TEG', city:'深圳', salary:'25-45K',
+    tags:['Docker','Kubernetes','Linux','CI/CD'], degree:'本科',
+    desc:'构建和维护大规模分布式系统的CI/CD基础设施。',
+    matchKeys: ['Docker','Kubernetes','Linux','DevOps','CI/CD'] },
+  { id:8, title:'AIGC应用开发', company:'腾讯', dept:'混元大模型', city:'北京', salary:'30-55K',
+    tags:['Python','AI/ML','AIGC','NLP'], degree:'硕士',
+    desc:'基于混元大模型构建AIGC应用，探索AI在内容创作中的落地。',
+    matchKeys: ['AI','AIGC','Python','大模型','NLP'] },
+];
+
+// Simulated AI matching engine
+function calculateMatchScore(profile, job) {
+  let score = 0;
+  const reasons = [];
+
+  // Skill match (40%)
+  const selectedSkills = profile.skills || [];
+  const matchedSkills = job.matchKeys.filter(k =>
+    selectedSkills.some(s => s.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(s.toLowerCase()))
+  );
+  const skillScore = matchedSkills.length / Math.max(job.matchKeys.length, 1) * 40;
+  score += skillScore;
+  if (matchedSkills.length > 0) reasons.push(`技能匹配: ${matchedSkills.join('、')}`);
+
+  // Role match (20%)
+  if (profile.targetRole && job.tags.some(t => profile.targetRole.includes(t) || t.includes(profile.targetRole))) {
+    score += 20;
+    reasons.push('岗位类型高度吻合');
+  } else if (profile.targetRole) {
+    score += 5;
+  }
+
+  // City match (10%)
+  if (profile.city && job.city.includes(profile.city)) {
+    score += 10;
+    reasons.push(`城市匹配: ${job.city}`);
+  }
+
+  // Education match (15%)
+  if (profile.education) {
+    if (job.degree === '本科' && ['本科','硕士','博士'].includes(profile.education)) { score += 15; reasons.push('学历满足要求'); }
+    else if (job.degree === '硕士' && ['硕士','博士'].includes(profile.education)) { score += 15; reasons.push('学历满足要求'); }
+    else if (job.degree === profile.education) { score += 15; reasons.push('学历匹配'); }
+  }
+
+  // Experience relevance (15%)
+  if (profile.experience) {
+    const expLower = profile.experience.toLowerCase();
+    const relevantTerms = job.matchKeys.filter(k => expLower.includes(k.toLowerCase()));
+    const expScore = Math.min(relevantTerms.length / 3, 1) * 15;
+    score += expScore;
+    if (relevantTerms.length > 0) reasons.push(`经历相关性: 涉及${relevantTerms.slice(0,3).join('、')}`);
+  }
+
+  return { score: Math.min(Math.round(score), 98), reasons };
+}
+
+// Start matching
+function startMatching() {
+  // Collect profile
+  const skills = Array.from(document.querySelectorAll('.skill-tag.selected')).map(t => t.dataset.skill);
+  const education = document.getElementById('education').value;
+  const major = document.getElementById('major').value.trim();
+
+  if (!education && !major && skills.length === 0) {
+    showToast('请至少填写学历、专业或选择技能标签', 'error');
+    return;
+  }
+
+  userProfile = {
+    education,
+    major,
+    school: document.getElementById('school').value.trim(),
+    gradYear: document.getElementById('gradYear').value,
+    targetRole: document.getElementById('targetRole').value,
+    city: document.getElementById('city').value.trim(),
+    skills,
+    experience: document.getElementById('experience').value.trim(),
+    selfEval: document.getElementById('selfEval').value.trim(),
+  };
+
+  // Show loading
+  document.getElementById('section-profile').style.display = 'none';
+  document.getElementById('loading').classList.add('show');
+
+  // Simulated AI processing steps
+  const loadingDetails = [
+    '正在解析技能图谱...',
+    '正在分析专业背景与岗位关联度...',
+    '正在评估项目经验权重...',
+    '正在匹配海量岗位数据库...',
+    '正在生成个性化推荐报告...',
+  ];
+  let detailIdx = 0;
+  const detailInterval = setInterval(() => {
+    detailIdx++;
+    if (detailIdx < loadingDetails.length) {
+      document.getElementById('loadingDetail').textContent = loadingDetails[detailIdx];
+    }
+  }, 600);
+
+  // Simulate AI processing delay
+  setTimeout(() => {
+    clearInterval(detailInterval);
+    document.getElementById('loading').classList.remove('show');
+
+    // Calculate matches
+    matchedJobs = jobDatabase.map(job => {
+      const match = calculateMatchScore(userProfile, job);
+      return { ...job, ...match };
+    }).sort((a, b) => b.score - a.score);
+
+    // Render results
+    renderJobResults();
+    document.getElementById('section-results').classList.add('show');
+
+    // Update steps
+    updateSteps(2);
+  }, 2500);
+}
+
+function renderJobResults() {
+  const container = document.getElementById('jobResults');
+  container.innerHTML = matchedJobs.map((job, idx) => {
+    const matchClass = job.score >= 75 ? 'match-high' : job.score >= 50 ? 'match-medium' : 'match-low';
+    return `
+      <div class="job-card" style="animation: fadeInUp ${0.2 + idx * 0.1}s ease;">
+        <div class="match-badge ${matchClass}">${job.score}%</div>
+        <div class="job-info">
+          <div class="job-title">${job.title} <span style="font-weight:400;font-size:14px;color:var(--text-light);">${job.dept}</span></div>
+          <div class="job-company">🏢 ${job.company} · 📍 ${job.city} · 💰 ${job.salary} · 🎓 ${job.degree}及以上</div>
+          <div class="job-tags">
+            ${job.tags.map(t => `<span class="job-tag">${t}</span>`).join('')}
+          </div>
+          <div style="margin-top:8px;font-size:14px;color:var(--text-light);">📝 ${job.desc}</div>
+          <div class="job-reason">
+            <strong>🤖 AI 匹配分析：</strong>${job.reasons.join('；')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function goToResumeAnalysis() {
+  document.getElementById('section-results').classList.remove('show');
+  document.getElementById('section-resume').classList.add('show');
+  // Auto-fill job description with top match
+  if (matchedJobs.length > 0 && !document.getElementById('jobDescription').value) {
+    const top = matchedJobs[0];
+    document.getElementById('jobDescription').value =
+      `【${top.title}】${top.company} - ${top.dept}\n地点：${top.city} | 薪资：${top.salary}\n要求：${top.tags.join('、')}\n描述：${top.desc}`;
+  }
+  updateSteps(3);
+}
+
+function analyzeResume() {
+  const resume = document.getElementById('resumeContent').value.trim();
+  const jd = document.getElementById('jobDescription').value.trim();
+
+  if (!resume || !jd) {
+    showToast('请填写简历内容和目标岗位描述', 'error');
+    return;
+  }
+
+  // Simulated AI resume analysis
+  const analysis = generateResumeAnalysis(resume, jd, userProfile);
+  renderResumeAnalysis(analysis);
+}
+
+function generateResumeAnalysis(resume, jd, profile) {
+  const resumeLower = resume.toLowerCase();
+  const jdLower = jd.toLowerCase();
+
+  // Extract keywords from JD
+  const jdKeywords = ['Python','Java','JavaScript','React','Vue','SQL','AI','数据分析',
+    '项目管理','Docker','Kubernetes','Linux','Figma','用户研究','产品设计','AIGC',
+    '沟通能力','团队协作','问题解决','逻辑思维','创新','责任心','学习能力'];
+
+  const foundKeywords = jdKeywords.filter(k => resumeLower.includes(k.toLowerCase()));
+  const missingKeywords = jdKeywords.filter(k => jdLower.includes(k.toLowerCase()) && !resumeLower.includes(k.toLowerCase()));
+
+  // Calculate match score
+  const totalJdKeywords = jdKeywords.filter(k => jdLower.includes(k.toLowerCase())).length;
+  const matchRate = totalJdKeywords > 0 ? Math.round(foundKeywords.length / totalJdKeywords * 100) : 60;
+
+  // Generate strengths
+  const strengths = [];
+  if (foundKeywords.length >= 5) strengths.push(`简历覆盖了${foundKeywords.length}个目标岗位关键词（${foundKeywords.slice(0,5).join('、')}等），技术栈匹配度良好`);
+  if (resumeLower.includes('实习') || resumeLower.includes('项目')) strengths.push('具备实习/项目经验描述，有实际工程经验支撑');
+  if (resumeLower.includes('大学') || resumeLower.includes('学院')) strengths.push('教育背景信息完整，学历门槛满足');
+  if (profile.skills && profile.skills.length >= 4) strengths.push(`技能标签丰富（${profile.skills.length}项），展现多维能力`);
+
+  // Generate weaknesses
+  const weaknesses = [];
+  if (missingKeywords.length > 0) weaknesses.push(`JD中要求的"${missingKeywords.slice(0,3).join('、')}"等关键词未在简历中体现，可能被ATS筛选过滤`);
+  if (resume.length < 100) weaknesses.push('简历内容偏简略，建议补充更多量化成果和项目细节');
+  if (!resumeLower.includes('成果') && !resumeLower.includes('提升') && !resumeLower.includes('%')) weaknesses.push('简历中缺少量化成果描述（如"提升效率30%"），建议添加数据支撑');
+  if (!resumeLower.includes('团队') && !resumeLower.includes('协作')) weaknesses.push('缺少团队协作相关描述，建议体现沟通与合作能力');
+
+  // Generate suggestions
+  const suggestions = [
+    `💡 <strong>关键词优化</strong>：在简历中自然融入缺失的关键词：${missingKeywords.slice(0,5).join('、')}，提升ATS筛选通过率`,
+    `📊 <strong>量化成果</strong>：用具体数据描述项目成果，如"优化页面加载速度<b>40%</b>"、"服务<b>100万+</b>用户"`,
+    `🎯 <strong>针对性调整</strong>：将最匹配该岗位的经历放在简历前1/3位置，重点突出与${(jdLower.includes('前端')?'前端开发':jdLower.includes('后端')?'后端开发':jdLower.includes('算法')?'算法':'技术')}相关的项目`,
+    `📝 <strong>简历结构优化</strong>：建议采用"个人信息→技术栈→工作/项目经历→教育背景"的结构，确保HR在10秒内抓住重点`,
+    `🔗 <strong>增加作品链接</strong>：如有GitHub、技术博客或作品集，建议添加到简历顶部`,
+    `🎓 <strong>突出学习能力</strong>：如掌握的新技术是通过自学，建议在简历中体现快速学习能力`,
+  ];
+
+  return { matchRate, strengths, weaknesses, suggestions, foundKeywords, missingKeywords };
+}
+
+function renderResumeAnalysis(analysis) {
+  const container = document.getElementById('resumeAnalysis');
+  container.innerHTML = `
+    <div style="margin-top:24px; padding-top:24px; border-top:2px solid var(--border);">
+      <div style="text-align:center; margin-bottom:24px;">
+        <div style="display:inline-block; position:relative;">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="60" fill="none" stroke="#e2e8f0" stroke-width="12"/>
+            <circle cx="70" cy="70" r="60" fill="none" stroke="${analysis.matchRate >= 70 ? '#10b981' : analysis.matchRate >= 40 ? '#f59e0b' : '#ef4444'}"
+              stroke-width="12" stroke-dasharray="${2 * Math.PI * 60}"
+              stroke-dashoffset="${2 * Math.PI * 60 * (1 - analysis.matchRate / 100)}"
+              stroke-linecap="round" transform="rotate(-90 70 70)" style="transition: stroke-dashoffset 1.5s ease;"/>
+            <text x="70" y="65" text-anchor="middle" font-size="32" font-weight="700" fill="#1e293b">${analysis.matchRate}%</text>
+            <text x="70" y="85" text-anchor="middle" font-size="12" fill="#64748b">匹配度</text>
+          </svg>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:12px;">✅ 简历优势 (${analysis.strengths.length}项)</h3>
+      ${analysis.strengths.map(s => `
+        <div class="analysis-item strength"><h4>👍 ${s}</h4></div>
+      `).join('')}
+
+      <h3 style="margin-bottom:12px; margin-top:20px;">⚠️ 待改进点 (${analysis.weaknesses.length}项)</h3>
+      ${analysis.weaknesses.map(w => `
+        <div class="analysis-item weakness"><h4>🔧 ${w}</h4></div>
+      `).join('')}
+
+      <h3 style="margin-bottom:12px; margin-top:20px;">🚀 AI 优化建议</h3>
+      ${analysis.suggestions.map(s => `
+        <div class="analysis-item suggestion"><h4>${s}</h4></div>
+      `).join('')}
+
+      <div style="margin-top:20px; padding:16px; background:linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius:12px; text-align:center;">
+        <p style="font-weight:600;color:var(--primary);">💡 提示：根据AI建议修改简历后，可重新粘贴进行迭代分析</p>
+      </div>
+    </div>
+  `;
+  container.scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateSteps(active) {
+  document.querySelectorAll('.step').forEach((step, i) => {
+    const num = i + 1;
+    step.classList.remove('active', 'done');
+    if (num < active) step.classList.add('done');
+    if (num === active) step.classList.add('active');
+  });
+}
+
+function showToast(msg, type) {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Reset to step 1
+document.querySelectorAll('.step').forEach(step => {
+  step.addEventListener('click', () => {
+    const s = parseInt(step.dataset.step);
+    if (s === 1) {
+      document.getElementById('section-profile').style.display = '';
+      document.getElementById('section-results').classList.remove('show');
+      document.getElementById('section-resume').classList.remove('show');
+      updateSteps(1);
+    }
+  });
+});
+
+// Add keyframe animation
+const style = document.createElement('style');
+style.textContent = '@keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
