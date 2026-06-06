@@ -3,218 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Offer捕手 - AI求职智能匹配智能体</title>
+<title>Offer捕手 V2 - AI求职智能匹配智能体</title>
 <style>
   :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text: #1e293b;
-    --text-light: #64748b;
-    --border: #e2e8f0;
-    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --primary: #6366f1; --primary-dark: #4f46e5; --success: #10b981;
+    --warning: #f59e0b; --danger: #ef4444; --bg: #0f172a; --card: #1e293b;
+    --text: #e2e8f0; --text-light: #94a3b8; --border: #334155;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3); --cyan: #06b6d4;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
+    background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
+    overflow-x: hidden;
   }
+  /* Particle canvas */
+  #particleCanvas { position: fixed; inset:0; pointer-events:none; z-index:0; }
 
-  /* Header */
   .header {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-    color: white;
-    padding: 32px 24px 48px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+    color: white; padding: 32px 24px 48px; text-align: center; position: relative; overflow: hidden; z-index:1;
   }
-  .header::after {
-    content: '';
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120%;
-    height: 60px;
-    background: var(--bg);
-    border-radius: 50% 50% 0 0;
-  }
-  .header .logo { font-size: 48px; margin-bottom: 12px; }
-  .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-  .header p { font-size: 16px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+  .header::after { content:''; position:absolute; bottom:-30px; left:50%; transform:translateX(-50%); width:120%; height:60px; background:var(--bg); border-radius:50% 50% 0 0; }
+  .header .logo { font-size:48px; margin-bottom:12px; animation: logoBounce 2s ease-in-out infinite; }
+  @keyframes logoBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .header h1 { font-size:32px; font-weight:700; margin-bottom:8px; letter-spacing:-0.5px; }
+  .header p { font-size:16px; opacity:0.9; max-width:600px; margin:0 auto; }
 
-  /* Container */
-  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; margin-top: -10px; }
+  .container { max-width:1100px; margin:0 auto; padding:0 24px 60px; position:relative; z-index:1; margin-top:-10px; }
 
-  /* Steps */
-  .steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
-  .step {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 20px; background: var(--card); border-radius: 50px;
-    box-shadow: var(--shadow); font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
-  }
-  .step .num {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--border); color: var(--text-light);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; transition: all 0.3s;
-  }
-  .step.active { border-color: var(--primary); color: var(--primary); }
-  .step.active .num { background: var(--primary); color: white; }
-  .step.done { border-color: var(--success); color: var(--success); }
-  .step.done .num { background: var(--success); color: white; }
+  .steps { display:flex; justify-content:center; gap:8px; margin-bottom:32px; flex-wrap:wrap; }
+  .step { display:flex; align-items:center; gap:8px; padding:10px 20px; background:var(--card); border-radius:50px; box-shadow:var(--shadow); font-size:14px; font-weight:500; cursor:pointer; transition:all 0.3s; border:2px solid transparent; }
+  .step .num { width:28px; height:28px; border-radius:50%; background:var(--border); color:var(--text-light); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; transition:all 0.3s; }
+  .step.active { border-color:var(--primary); color:var(--primary); }
+  .step.active .num { background:var(--primary); color:white; }
+  .step.done { border-color:var(--success); color:var(--success); }
+  .step.done .num { background:var(--success); color:white; }
 
-  /* Cards */
-  .card {
-    background: var(--card); border-radius: 16px; padding: 32px;
-    box-shadow: var(--shadow); margin-bottom: 24px;
-  }
-  .card h2 { font-size: 22px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-  .card .subtitle { color: var(--text-light); font-size: 14px; margin-bottom: 24px; }
+  .card { background:var(--card); border-radius:16px; padding:32px; box-shadow:var(--shadow); margin-bottom:24px; border:1px solid var(--border); }
+  .card h2 { font-size:22px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+  .card .subtitle { color:var(--text-light); font-size:14px; margin-bottom:24px; }
 
-  /* Form */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-group label { font-weight: 600; font-size: 14px; color: var(--text); }
-  .form-group label .icon { margin-right: 4px; }
-  .form-group input, .form-group select, .form-group textarea {
-    padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px;
-    font-size: 14px; transition: border-color 0.3s; font-family: inherit;
-    background: #f8fafc;
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:768px){.form-grid{grid-template-columns:1fr}}
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-group label { font-weight:600; font-size:14px; color:var(--text); }
+  .form-group input,.form-group select,.form-group textarea {
+    padding:12px 16px; border:2px solid var(--border); border-radius:10px;
+    font-size:14px; transition:border-color 0.3s; font-family:inherit;
+    background:var(--card); color:var(--text);
   }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--primary); background: white;
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus {
+    outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,0.15);
   }
-  .form-group textarea { resize: vertical; min-height: 100px; }
+  .form-group textarea { resize:vertical; min-height:100px; }
 
-  /* Skills tags */
-  .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-  .skill-tag {
-    padding: 6px 14px; border-radius: 20px; font-size: 13px;
-    cursor: pointer; transition: all 0.2s; border: 2px solid var(--border);
-    background: white; user-select: none;
-  }
-  .skill-tag:hover { border-color: var(--primary); }
-  .skill-tag.selected { background: var(--primary); color: white; border-color: var(--primary); }
+  .skill-tags { display:flex; flex-wrap:wrap; gap:8px; }
+  .skill-tag { padding:6px 14px; border-radius:20px; font-size:13px; cursor:pointer; transition:all 0.2s; border:2px solid var(--border); background:var(--card); user-select:none; }
+  .skill-tag:hover { border-color:var(--primary); box-shadow:0 0 8px rgba(99,102,241,0.3); }
+  .skill-tag.selected { background:var(--primary); color:white; border-color:var(--primary); box-shadow:0 0 12px rgba(99,102,241,0.4); }
 
-  /* Buttons */
-  .btn {
-    padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: all 0.3s; border: none; display: inline-flex;
-    align-items: center; gap: 8px;
-  }
-  .btn-primary { background: var(--primary); color: white; }
-  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
-  .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
-  .btn-outline:hover { background: #f5f3ff; }
-  .btn-lg { padding: 14px 36px; font-size: 16px; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+  .btn { padding:12px 28px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.3s; border:none; display:inline-flex; align-items:center; gap:8px; }
+  .btn-primary { background:var(--primary); color:white; }
+  .btn-primary:hover { background:var(--primary-dark); transform:translateY(-2px); box-shadow:0 6px 24px rgba(99,102,241,0.5); }
+  .btn-outline { background:transparent; color:var(--primary); border:2px solid var(--primary); }
+  .btn-outline:hover { background:rgba(99,102,241,0.1); box-shadow:0 4px 16px rgba(99,102,241,0.3); }
+  .btn-success { background:var(--success); color:white; }
+  .btn-success:hover { box-shadow:0 6px 24px rgba(16,185,129,0.5); transform:translateY(-2px); }
+  .btn-lg { padding:14px 36px; font-size:16px; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; pointer-events:none; }
 
-  /* Results */
-  .results { display: none; }
-  .results.show { display: block; }
+  .results { display:none; }
+  .results.show { display:block; }
 
-  /* Job Card */
   .job-card {
-    border: 2px solid var(--border); border-radius: 14px; padding: 24px;
-    margin-bottom: 16px; transition: all 0.3s; cursor: pointer;
-    display: flex; gap: 20px; align-items: flex-start;
+    border:2px solid var(--border); border-radius:14px; padding:24px;
+    margin-bottom:16px; transition:all 0.4s cubic-bezier(0.4,0,0.2,1); cursor:pointer;
+    display:flex; gap:20px; align-items:flex-start; background:var(--card);
+    animation: cardFlyIn 0.5s ease both;
   }
-  .job-card:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(99,102,241,0.1); }
-  .job-card .match-badge {
-    min-width: 64px; height: 64px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 18px; color: white;
-  }
-  .match-high { background: linear-gradient(135deg, #10b981, #34d399); }
-  .match-medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-  .match-low { background: linear-gradient(135deg, #ef4444, #f87171); }
-  .job-card .job-info { flex: 1; }
-  .job-card .job-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-  .job-card .job-company { color: var(--text-light); font-size: 14px; margin-bottom: 8px; }
-  .job-card .job-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .job-tag {
-    padding: 4px 10px; background: #f1f5f9; border-radius: 6px;
-    font-size: 12px; color: var(--text-light);
-  }
-  .job-card .job-reason { margin-top: 12px; padding: 12px; background: #fefce8; border-radius: 8px; font-size: 13px; color: #92400e; }
+  @keyframes cardFlyIn { from{opacity:0;transform:translateY(30px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .job-card:hover { border-color:var(--primary); box-shadow:0 8px 32px rgba(99,102,241,0.2); transform:translateY(-3px); }
+  .job-card.favorited { border-color:var(--warning); }
+  .job-card .match-badge { min-width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; color:white; position:relative; }
+  .match-high { background:linear-gradient(135deg,#10b981,#34d399); animation:ringGlow 2s ease-in-out infinite; }
+  @keyframes ringGlow { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)} 50%{box-shadow:0 0 20px 8px rgba(16,185,129,0.2)} }
+  .match-medium { background:linear-gradient(135deg,#f59e0b,#fbbf24); }
+  .match-low { background:linear-gradient(135deg,#ef4444,#f87171); }
+  .job-card .job-info { flex:1; }
+  .job-card .job-title { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .job-card .job-company { color:var(--text-light); font-size:14px; margin-bottom:8px; }
+  .job-card .job-tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .job-tag { padding:4px 10px; background:rgba(99,102,241,0.1); border-radius:6px; font-size:12px; color:var(--text-light); }
+  .job-card .job-reason { margin-top:12px; padding:12px; background:rgba(251,191,36,0.08); border-radius:8px; font-size:13px; color:var(--warning); border-left:3px solid var(--warning); }
 
-  /* Radar Chart */
-  .radar-container { width: 100%; max-width: 400px; margin: 0 auto; }
-  .radar-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 16px; }
-  .radar-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-  .radar-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .radar-container { width:100%; max-width:400px; margin:0 auto; }
 
-  /* Analysis */
-  .analysis-section { margin-top: 16px; }
-  .analysis-item {
-    padding: 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 12px;
-    border-left: 4px solid var(--primary);
-  }
-  .analysis-item.strength { border-left-color: var(--success); }
-  .analysis-item.weakness { border-left-color: var(--warning); }
-  .analysis-item.suggestion { border-left-color: var(--primary); }
-  .analysis-item h4 { font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .analysis-section { margin-top:16px; }
+  .analysis-item { padding:16px; background:rgba(30,41,59,0.5); border-radius:10px; margin-bottom:12px; border-left:4px solid var(--primary); transition:all 0.3s; }
+  .analysis-item:hover { transform:translateX(4px); }
+  .analysis-item.strength { border-left-color:var(--success); }
+  .analysis-item.weakness { border-left-color:var(--warning); }
+  .analysis-item.suggestion { border-left-color:var(--primary); }
+  .analysis-item h4 { font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
 
-  /* Loading */
-  .loading {
-    display: none; text-align: center; padding: 60px 20px;
-  }
-  .loading.show { display: block; }
-  .spinner {
-    width: 48px; height: 48px; border: 4px solid var(--border);
-    border-top-color: var(--primary); border-radius: 50%;
-    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { color: var(--text-light); font-size: 14px; margin-top: 8px; }
+  .loading { display:none; text-align:center; padding:60px 20px; }
+  .loading.show { display:block; }
+  .spinner { width:48px; height:48px; border:4px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-text { color:var(--text-light); font-size:14px; margin-top:8px; }
 
-  /* Toast */
-  .toast {
-    position: fixed; top: 24px; right: 24px; padding: 14px 24px;
-    border-radius: 10px; color: white; font-weight: 500; z-index: 1000;
-    animation: slideIn 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  }
-  .toast.success { background: var(--success); }
-  .toast.error { background: var(--danger); }
-  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast { position:fixed; top:24px; right:24px; padding:14px 24px; border-radius:10px; color:white; font-weight:500; z-index:1000; animation:slideIn 0.3s ease; box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+  .toast.success { background:var(--success); } .toast.error { background:var(--danger); } .toast.info { background:var(--cyan); }
+  @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
 
-  /* Section hidden */
-  .section-hidden { display: none; }
-  .section-hidden.show { display: block; }
+  .section-hidden { display:none; }
+  .section-hidden.show { display:block; }
+
+  /* Confetti */
+  .confetti-container { position:fixed; inset:0; pointer-events:none; z-index:500; }
+  .confetti-piece { position:absolute; width:12px; height:12px; border-radius:3px; animation:confettiFall linear forwards; }
+  @keyframes confettiFall { 0%{transform:translateY(-100px) rotate(0deg);opacity:1} 100%{transform:translateY(105vh) rotate(720deg);opacity:0} }
+
+  /* Knowledge tips */
+  .tips-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+  .tip-card { background:var(--card); border-radius:12px; padding:18px; border:1px solid var(--border); cursor:pointer; transition:all 0.3s; }
+  .tip-card:hover { border-color:var(--cyan); transform:translateY(-2px); box-shadow:0 4px 16px rgba(6,182,212,0.15); }
+  .tip-card .tip-icon { font-size:28px; margin-bottom:6px; }
+  .tip-card .tip-title { font-weight:600; font-size:14px; }
+  .tip-card .tip-desc { font-size:12px; color:var(--text-light); margin-top:4px; }
+
+  /* Tracking panel */
+  .tracking-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .tracking-table th { text-align:left; padding:10px 12px; color:var(--text-light); font-weight:500; border-bottom:1px solid var(--border); font-size:11px; }
+  .tracking-table td { padding:10px 12px; border-bottom:1px solid rgba(51,65,85,0.3); }
+  .tracking-table tbody tr { transition:all 0.2s; cursor:pointer; }
+  .tracking-table tbody tr:hover { background:rgba(99,102,241,0.05); }
+  .status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+  .status-dot.applied { background:var(--cyan); }
+  .status-dot.screening { background:var(--warning); animation:pulse 1.5s infinite; }
+  .status-dot.interview { background:var(--primary); animation:pulse 1.5s infinite; }
+  .status-dot.offered { background:var(--success); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 </style>
 </head>
 <body>
 
+<canvas id="particleCanvas"></canvas>
+
 <div class="header">
   <div class="logo">🎯</div>
-  <h1>Offer 捕手</h1>
-  <p>AI 驱动的智能求职匹配引擎 —— 让你的简历精准命中心仪岗位</p>
+  <h1>Offer 捕手 V2</h1>
+  <p>AI 驱动的智能求职匹配引擎 —— 可更新 · 可追踪 · 真实链路</p>
 </div>
 
 <div class="container">
-  <!-- Steps -->
   <div class="steps">
-    <div class="step active" data-step="1">
-      <span class="num">1</span> 填写背景信息
-    </div>
-    <div class="step" data-step="2">
-      <span class="num">2</span> 智能岗位匹配
-    </div>
-    <div class="step" data-step="3">
-      <span class="num">3</span> 简历分析优化
-    </div>
+    <div class="step active" data-step="1"><span class="num">1</span> 填写背景信息</div>
+    <div class="step" data-step="2"><span class="num">2</span> 智能岗位匹配</div>
+    <div class="step" data-step="3"><span class="num">3</span> 简历分析优化</div>
+    <div class="step" data-step="4"><span class="num">4</span> 投递追踪</div>
   </div>
 
   <!-- Step 1: Profile Input -->
@@ -222,841 +171,358 @@
     <h2>📋 个人信息</h2>
     <p class="subtitle">请尽可能详细地填写你的背景信息，AI 将基于此为你精准匹配岗位</p>
     <div class="form-grid">
-      <div class="form-group">
-        <label>🎓 最高学历</label>
-        <select id="education">
-          <option value="">请选择</option>
-          <option value="本科">本科</option>
-          <option value="硕士">硕士</option>
-          <option value="博士">博士</option>
-          <option value="大专">大专</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>📚 专业方向</label>
-        <input type="text" id="major" list="majorList" placeholder="如：计算机科学、软件工程、数据科学...">
-        <datalist id="majorList">
-          <!-- 经济学 -->
-          <option value="经济学 · 经济学">          <option value="经济学 · 经济统计学">
-          <option value="经济学 · 国民经济管理">    <option value="经济学 · 金融学">
-          <option value="经济学 · 金融工程">        <option value="经济学 · 保险学">
-          <option value="经济学 · 投资学">          <option value="经济学 · 国际经济与贸易">
-          <option value="经济学 · 财政学">          <option value="经济学 · 税收学">
-          <!-- 管理学 -->
-          <option value="管理学 · 工商管理">        <option value="管理学 · 市场营销">
-          <option value="管理学 · 会计学">          <option value="管理学 · 财务管理">
-          <option value="管理学 · 人力资源管理">    <option value="管理学 · 审计学">
-          <option value="管理学 · 物流管理">        <option value="管理学 · 供应链管理">
-          <option value="管理学 · 电子商务">        <option value="管理学 · 旅游管理">
-          <option value="管理学 · 酒店管理">        <option value="管理学 · 公共事业管理">
-          <option value="管理学 · 行政管理">        <option value="管理学 · 劳动与社会保障">
-          <option value="管理学 · 土地资源管理">    <option value="管理学 · 信息管理与信息系统">
-          <option value="管理学 · 工程管理">        <option value="管理学 · 工程造价">
-          <option value="管理学 · 大数据管理与应用"><option value="管理学 · 文化产业管理">
-          <!-- 工学-计算机与电子信息类 -->
-          <option value="工学 · 计算机科学与技术">  <option value="工学 · 软件工程">
-          <option value="工学 · 网络工程">          <option value="工学 · 信息安全">
-          <option value="工学 · 物联网工程">        <option value="工学 · 数据科学与大数据技术">
-          <option value="工学 · 人工智能">          <option value="工学 · 智能科学与技术">
-          <option value="工学 · 电子与计算机工程">  <option value="工学 · 空间信息与数字技术">
-          <option value="工学 · 电子信息工程">      <option value="工学 · 电子科学与技术">
-          <option value="工学 · 通信工程">          <option value="工学 · 微电子科学与工程">
-          <option value="工学 · 光电信息科学与工程"><option value="工学 · 集成电路设计与集成系统">
-          <option value="工学 · 自动化">            <option value="工学 · 机器人工程">
-          <option value="工学 · 数字媒体技术">      <option value="工学 · 虚拟现实技术">
-          <option value="工学 · 区块链工程">        <option value="工学 · 密码科学与技术">
-          <!-- 工学-机械与电气类 -->
-          <option value="工学 · 机械工程">          <option value="工学 · 机械设计制造及其自动化">
-          <option value="工学 · 车辆工程">          <option value="工学 · 智能制造工程">
-          <option value="工学 · 测控技术与仪器">    <option value="工学 · 电气工程及其自动化">
-          <option value="工学 · 能源与动力工程">    <option value="工学 · 新能源科学与工程">
-          <!-- 工学-土木建筑类 -->
-          <option value="工学 · 建筑学">            <option value="工学 · 城乡规划">
-          <option value="工学 · 风景园林">          <option value="工学 · 土木工程">
-          <option value="工学 · 建筑环境与能源应用工程"><option value="工学 · 给排水科学与工程">
-          <option value="工学 · 水利水电工程">      <option value="工学 · 测绘工程">
-          <!-- 工学-化工材料类 -->
-          <option value="工学 · 化学工程与工艺">    <option value="工学 · 制药工程">
-          <option value="工学 · 材料科学与工程">    <option value="工学 · 高分子材料与工程">
-          <option value="工学 · 纳米材料与技术">    <option value="工学 · 新能源材料与器件">
-          <!-- 工学-环境与安全类 -->
-          <option value="工学 · 环境工程">          <option value="工学 · 环境科学">
-          <option value="工学 · 安全工程">          <option value="工学 · 食品科学与工程">
-          <option value="工学 · 食品质量与安全">    <option value="工学 · 生物工程">
-          <option value="工学 · 生物医学工程">      <option value="工学 · 航空航天工程">
-          <option value="工学 · 船舶与海洋工程">    <option value="工学 · 交通运输">
-          <option value="工学 · 交通工程">          <option value="工学 · 飞行技术">
-          <!-- 理学 -->
-          <option value="理学 · 数学与应用数学">    <option value="理学 · 信息与计算科学">
-          <option value="理学 · 物理学">            <option value="理学 · 应用物理学">
-          <option value="理学 · 化学">              <option value="理学 · 应用化学">
-          <option value="理学 · 地理科学">          <option value="理学 · 大气科学">
-          <option value="理学 · 海洋科学">          <option value="理学 · 生物科学">
-          <option value="理学 · 生物技术">          <option value="理学 · 生态学">
-          <option value="理学 · 统计学">            <option value="理学 · 应用统计学">
-          <option value="理学 · 心理学">            <option value="理学 · 应用心理学">
-          <!-- 文学与新闻传播 -->
-          <option value="文学 · 汉语言文学">        <option value="文学 · 汉语国际教育">
-          <option value="文学 · 英语">              <option value="文学 · 日语">
-          <option value="文学 · 德语">              <option value="文学 · 法语">
-          <option value="文学 · 俄语">              <option value="文学 · 西班牙语">
-          <option value="文学 · 翻译">              <option value="文学 · 商务英语">
-          <option value="文学 · 新闻学">            <option value="文学 · 广播电视学">
-          <option value="文学 · 广告学">            <option value="文学 · 传播学">
-          <option value="文学 · 网络与新媒体">      <option value="文学 · 编辑出版学">
-          <!-- 法学与社会学 -->
-          <option value="法学 · 法学">              <option value="法学 · 知识产权">
-          <option value="法学 · 政治学与行政学">    <option value="法学 · 国际政治">
-          <option value="法学 · 社会学">            <option value="法学 · 社会工作">
-          <option value="法学 · 思想政治教育">      <option value="法学 · 治安学">
-          <!-- 教育学 -->
-          <option value="教育学 · 教育学">          <option value="教育学 · 教育技术学">
-          <option value="教育学 · 学前教育">        <option value="教育学 · 小学教育">
-          <option value="教育学 · 特殊教育">        <option value="教育学 · 体育教育">
-          <option value="教育学 · 运动训练">        <option value="教育学 · 社会体育指导与管理">
-          <!-- 医学 -->
-          <option value="医学 · 临床医学">          <option value="医学 · 口腔医学">
-          <option value="医学 · 预防医学">          <option value="医学 · 中医学">
-          <option value="医学 · 药学">              <option value="医学 · 护理学">
-          <option value="医学 · 医学检验技术">      <option value="医学 · 医学影像学">
-          <option value="医学 · 公共卫生管理">      <option value="医学 · 中药学">
-          <!-- 艺术学 -->
-          <option value="艺术学 · 音乐学">          <option value="艺术学 · 美术学">
-          <option value="艺术学 · 设计学">          <option value="艺术学 · 视觉传达设计">
-          <option value="艺术学 · 环境设计">        <option value="艺术学 · 产品设计">
-          <option value="艺术学 · 数字媒体艺术">    <option value="艺术学 · 动画">
-          <option value="艺术学 · 戏剧影视文学">    <option value="艺术学 · 广播电视编导">
-          <option value="艺术学 · 播音与主持艺术">  <option value="艺术学 · 服装与服饰设计">
-          <option value="艺术学 · 工艺美术">        <option value="艺术学 · 书法学">
-          <!-- 农学 -->
-          <option value="农学 · 农学">              <option value="农学 · 园艺">
-          <option value="农学 · 植物保护">          <option value="农学 · 动物科学">
-          <option value="农学 · 林学">              <option value="农学 · 园林">
-          <option value="农学 · 水产养殖学">        <option value="农学 · 农业资源与环境">
-          <!-- 历史学与哲学 -->
-          <option value="历史学 · 历史学">          <option value="历史学 · 考古学">
-          <option value="历史学 · 文物与博物馆学">  <option value="哲学 · 哲学">
-          <option value="哲学 · 逻辑学">            <option value="哲学 · 伦理学">
-        </datalist>
-      </div>
-      <div class="form-group">
-        <label>🏫 毕业院校</label>
-        <input type="text" id="school" list="schoolList" placeholder="如：清华大学">
-        <datalist id="schoolList">
-          <!-- 北京 -->
-          <option value="清华大学">            <option value="北京大学">
-          <option value="中国人民大学">        <option value="北京航空航天大学">
-          <option value="北京理工大学">        <option value="北京师范大学">
-          <option value="中国农业大学">        <option value="北京科技大学">
-          <option value="北京邮电大学">        <option value="北京交通大学">
-          <option value="北京工业大学">        <option value="北京化工大学">
-          <option value="北京林业大学">        <option value="北京中医药大学">
-          <option value="中央财经大学">        <option value="中国政法大学">
-          <option value="对外经济贸易大学">    <option value="华北电力大学">
-          <option value="中国地质大学(北京)">  <option value="中国矿业大学(北京)">
-          <option value="中国石油大学(北京)">  <option value="中国传媒大学">
-          <option value="首都师范大学">        <option value="北京外国语大学">
-          <option value="北京体育大学">        <option value="中央民族大学">
-          <option value="北京建筑大学">        <option value="北方工业大学">
-          <option value="北京工商大学">        <option value="北京物资学院">
-          <option value="北京信息科技大学">    <option value="北京联合大学">
-          <option value="中国科学院大学">      <option value="中国社会科学院大学">
-          <!-- 上海 -->
-          <option value="复旦大学">            <option value="上海交通大学">
-          <option value="同济大学">            <option value="华东师范大学">
-          <option value="华东理工大学">        <option value="上海财经大学">
-          <option value="上海大学">            <option value="东华大学">
-          <option value="上海外国语大学">      <option value="华东政法大学">
-          <option value="上海理工大学">        <option value="上海海事大学">
-          <option value="上海海洋大学">        <option value="上海师范大学">
-          <option value="上海对外经贸大学">    <option value="上海工程技术大学">
-          <!-- 广东 -->
-          <option value="中山大学">            <option value="华南理工大学">
-          <option value="暨南大学">            <option value="华南师范大学">
-          <option value="华南农业大学">        <option value="南方医科大学">
-          <option value="广东工业大学">        <option value="广东外语外贸大学">
-          <option value="深圳大学">            <option value="广州大学">
-          <option value="汕头大学">            <option value="南方科技大学">
-          <option value="东莞理工学院">        <option value="佛山科学技术学院">
-          <option value="广东财经大学">        <option value="广州医科大学">
-          <option value="北京师范大学(珠海)">  <option value="香港中文大学(深圳)">
-          <!-- 浙江 -->
-          <option value="浙江大学">            <option value="浙江工业大学">
-          <option value="浙江师范大学">        <option value="宁波大学">
-          <option value="杭州电子科技大学">    <option value="浙江工商大学">
-          <option value="浙江理工大学">        <option value="温州大学">
-          <option value="中国美术学院">        <option value="浙江财经大学">
-          <option value="杭州师范大学">        <option value="温州医科大学">
-          <!-- 江苏 -->
-          <option value="南京大学">            <option value="东南大学">
-          <option value="南京航空航天大学">    <option value="南京理工大学">
-          <option value="河海大学">            <option value="苏州大学">
-          <option value="南京师范大学">        <option value="中国矿业大学">
-          <option value="江南大学">            <option value="南京农业大学">
-          <option value="中国药科大学">        <option value="南京邮电大学">
-          <option value="南京工业大学">        <option value="江苏大学">
-          <option value="扬州大学">            <option value="南京信息工程大学">
-          <option value="西交利物浦大学">      <option value="南京林业大学">
-          <!-- 湖北 -->
-          <option value="武汉大学">            <option value="华中科技大学">
-          <option value="华中师范大学">        <option value="武汉理工大学">
-          <option value="华中农业大学">        <option value="中国地质大学(武汉)">
-          <option value="中南财经政法大学">    <option value="湖北大学">
-          <option value="武汉科技大学">        <option value="三峡大学">
-          <option value="湖北工业大学">        <option value="武汉工程大学">
-          <!-- 湖南 -->
-          <option value="国防科技大学">        <option value="中南大学">
-          <option value="湖南大学">            <option value="湖南师范大学">
-          <option value="湘潭大学">            <option value="长沙理工大学">
-          <option value="湖南科技大学">        <option value="中南林业科技大学">
-          <option value="南华大学">            <option value="湖南工业大学">
-          <!-- 四川与重庆 -->
-          <option value="四川大学">            <option value="电子科技大学">
-          <option value="西南交通大学">        <option value="西南财经大学">
-          <option value="四川农业大学">        <option value="成都理工大学">
-          <option value="西南科技大学">        <option value="重庆大学">
-          <option value="西南大学">            <option value="西南政法大学">
-          <option value="重庆邮电大学">        <option value="重庆交通大学">
-          <option value="重庆理工大学">        <option value="四川外国语大学">
-          <!-- 陕西 -->
-          <option value="西安交通大学">        <option value="西北工业大学">
-          <option value="西安电子科技大学">    <option value="西北大学">
-          <option value="西北农林科技大学">    <option value="陕西师范大学">
-          <option value="长安大学">            <option value="西安理工大学">
-          <option value="西安建筑科技大学">    <option value="西安科技大学">
-          <option value="西安邮电大学">        <option value="延安大学">
-          <!-- 天津 -->
-          <option value="南开大学">            <option value="天津大学">
-          <option value="天津医科大学">        <option value="天津师范大学">
-          <option value="天津工业大学">        <option value="天津科技大学">
-          <option value="天津财经大学">        <option value="中国民航大学">
-          <!-- 山东 -->
-          <option value="山东大学">            <option value="中国海洋大学">
-          <option value="中国石油大学(华东)">  <option value="青岛大学">
-          <option value="山东科技大学">        <option value="青岛科技大学">
-          <option value="济南大学">            <option value="山东师范大学">
-          <option value="曲阜师范大学">        <option value="烟台大学">
-          <!-- 福建 -->
-          <option value="厦门大学">            <option value="福州大学">
-          <option value="福建师范大学">        <option value="华侨大学">
-          <option value="集美大学">            <option value="福建农林大学">
-          <!-- 安徽 -->
-          <option value="中国科学技术大学">    <option value="合肥工业大学">
-          <option value="安徽大学">            <option value="安徽师范大学">
-          <option value="安徽理工大学">        <option value="安徽农业大学">
-          <!-- 河南 -->
-          <option value="郑州大学">            <option value="河南大学">
-          <option value="河南师范大学">        <option value="河南理工大学">
-          <option value="河南科技大学">        <option value="河南工业大学">
-          <option value="华北水利水电大学">    <option value="郑州轻工业大学">
-          <!-- 河北 -->
-          <option value="河北工业大学">        <option value="燕山大学">
-          <option value="河北大学">            <option value="河北师范大学">
-          <option value="河北科技大学">        <option value="华北理工大学">
-          <option value="石家庄铁道大学">      <option value="河北经贸大学">
-          <!-- 辽宁 -->
-          <option value="大连理工大学">        <option value="东北大学">
-          <option value="大连海事大学">        <option value="辽宁大学">
-          <option value="东北财经大学">        <option value="大连交通大学">
-          <option value="沈阳工业大学">        <option value="沈阳航空航天大学">
-          <!-- 吉林 -->
-          <option value="吉林大学">            <option value="东北师范大学">
-          <option value="长春理工大学">        <option value="延边大学">
-          <option value="东北电力大学">        <option value="吉林农业大学">
-          <!-- 黑龙江 -->
-          <option value="哈尔滨工业大学">      <option value="哈尔滨工程大学">
-          <option value="东北林业大学">        <option value="东北农业大学">
-          <option value="哈尔滨理工大学">      <option value="黑龙江大学">
-          <!-- 江西 -->
-          <option value="南昌大学">            <option value="江西财经大学">
-          <option value="江西师范大学">        <option value="华东交通大学">
-          <option value="东华理工大学">        <option value="江西理工大学">
-          <!-- 山西 -->
-          <option value="太原理工大学">        <option value="山西大学">
-          <option value="中北大学">            <option value="山西财经大学">
-          <!-- 广西 -->
-          <option value="广西大学">            <option value="广西师范大学">
-          <option value="桂林电子科技大学">    <option value="广西医科大学">
-          <!-- 云南 -->
-          <option value="云南大学">            <option value="昆明理工大学">
-          <option value="云南师范大学">        <option value="云南财经大学">
-          <!-- 贵州 -->
-          <option value="贵州大学">            <option value="贵州师范大学">
-          <option value="贵州财经大学">        <option value="遵义医科大学">
-          <!-- 海南 -->
-          <option value="海南大学">            <option value="海南师范大学">
-          <!-- 甘肃 -->
-          <option value="兰州大学">            <option value="兰州理工大学">
-          <option value="西北师范大学">        <option value="兰州交通大学">
-          <!-- 宁夏青海西藏 -->
-          <option value="宁夏大学">            <option value="青海大学">
-          <option value="西藏大学">            <option value="新疆大学">
-          <option value="石河子大学">          <option value="内蒙古大学">
-          <!-- 港澳台及中外合办 -->
-          <option value="香港大学">            <option value="香港中文大学">
-          <option value="香港科技大学">        <option value="香港城市大学">
-          <option value="香港理工大学">        <option value="澳门大学">
-          <option value="宁波诺丁汉大学">      <option value="上海纽约大学">
-          <option value="昆山杜克大学">        <option value="温州肯恩大学">
-        </datalist>
-      </div>
-      <div class="form-group">
-        <label>📅 毕业年份</label>
-        <select id="gradYear">
-          <option value="">请选择</option>
-          <option value="2026">2026年</option>
-          <option value="2027">2027年</option>
-          <option value="2028">2028年</option>
-          <option value="2029">2029年</option>
-          <option value="2030">2030年</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>💼 期望岗位类型</label>
-        <select id="targetRole">
-          <option value="">请选择</option>
-          <option value="技术研发">技术研发</option>
-          <option value="产品经理">产品经理</option>
-          <option value="数据分析">数据分析</option>
-          <option value="UI/UX设计">UI/UX设计</option>
-          <option value="运营">运营</option>
-          <option value="市场">市场</option>
-          <option value="人力资源">人力资源</option>
-          <option value="销售">销售</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>🏙️ 期望工作城市</label>
-        <input type="text" id="city" list="cityList" placeholder="如：深圳、北京、上海...">
-        <datalist id="cityList">
-          <!-- 🔥 热门城市 -->
-          <option value="🔸 深圳">          <option value="🔸 北京">
-          <option value="🔸 上海">          <option value="🔸 广州">
-          <option value="🔸 杭州">          <option value="🔸 成都">
-          <option value="🔸 武汉">          <option value="🔸 南京">
-          <option value="🔸 西安">          <option value="🔸 重庆">
-          <option value="🔸 长沙">          <option value="🔸 苏州">
-          <!-- A-B -->
-          <option value="鞍山">            <option value="安庆">
-          <option value="安阳">            <option value="澳门">
-          <option value="保定">            <option value="宝鸡">
-          <option value="包头">            <option value="北海">
-          <option value="蚌埠">            <option value="滨州">
-          <!-- C -->
-          <option value="长春">            <option value="长沙">
-          <option value="常州">            <option value="成都">
-          <option value="重庆">            <option value="滁州">
-          <option value="常德">            <option value="郴州">
-          <option value="潮州">            <option value="沧州">
-          <!-- D -->
-          <option value="大连">            <option value="大庆">
-          <option value="大同">            <option value="东莞">
-          <option value="德州">            <option value="东营">
-          <option value="德阳">            <option value="丹东">
-          <!-- E -->
-          <option value="鄂尔多斯">        <option value="恩施">
-          <!-- F -->
-          <option value="福州">            <option value="佛山">
-          <option value="抚顺">            <option value="阜阳">
-          <option value="抚州">            <option value="防城港">
-          <!-- G -->
-          <option value="广州">            <option value="贵阳">
-          <option value="桂林">            <option value="赣州">
-          <option value="广元">            <option value="贵港">
-          <!-- H -->
-          <option value="杭州">            <option value="哈尔滨">
-          <option value="合肥">            <option value="海口">
-          <option value="呼和浩特">        <option value="邯郸">
-          <option value="惠州">            <option value="淮安">
-          <option value="湖州">            <option value="衡阳">
-          <option value="黄石">            <option value="黄山">
-          <option value="河源">            <option value="淮北">
-          <!-- J -->
-          <option value="济南">            <option value="金华">
-          <option value="嘉兴">            <option value="济宁">
-          <option value="吉林">            <option value="锦州">
-          <option value="荆州">            <option value="九江">
-          <option value="焦作">            <option value="揭阳">
-          <option value="江门">            <option value="晋中">
-          <!-- K -->
-          <option value="昆明">            <option value="开封">
-          <option value="喀什">            <option value="克拉玛依">
-          <!-- L -->
-          <option value="拉萨">            <option value="兰州">
-          <option value="洛阳">            <option value="柳州">
-          <option value="连云港">          <option value="临沂">
-          <option value="辽阳">            <option value="泸州">
-          <option value="丽江">            <option value="六盘水">
-          <option value="廊坊">            <option value="聊城">
-          <!-- M -->
-          <option value="绵阳">            <option value="马鞍山">
-          <option value="茂名">            <option value="梅州">
-          <option value="牡丹江">          <option value="眉山">
-          <!-- N -->
-          <option value="南京">            <option value="宁波">
-          <option value="南昌">            <option value="南宁">
-          <option value="南通">            <option value="南阳">
-          <option value="宁德">            <option value="内江">
-          <!-- P -->
-          <option value="莆田">            <option value="平顶山">
-          <option value="盘锦">            <option value="攀枝花">
-          <!-- Q -->
-          <option value="青岛">            <option value="泉州">
-          <option value="秦皇岛">          <option value="齐齐哈尔">
-          <option value="衢州">            <option value="钦州">
-          <option value="清远">            <option value="曲靖">
-          <!-- R -->
-          <option value="日照">            <option value="瑞安">
-          <!-- S -->
-          <option value="深圳">            <option value="上海">
-          <option value="苏州">            <option value="沈阳">
-          <option value="石家庄">          <option value="汕头">
-          <option value="三亚">            <option value="绍兴">
-          <option value="十堰">            <option value="宿迁">
-          <option value="商丘">            <option value="遂宁">
-          <!-- T -->
-          <option value="天津">            <option value="太原">
-          <option value="唐山">            <option value="台州">
-          <option value="泰安">            <option value="天水">
-          <option value="铁岭">            <option value="通化">
-          <!-- W -->
-          <option value="武汉">            <option value="无锡">
-          <option value="温州">            <option value="芜湖">
-          <option value="威海">            <option value="潍坊">
-          <option value="乌鲁木齐">        <option value="渭南">
-          <!-- X -->
-          <option value="西安">            <option value="厦门">
-          <option value="徐州">            <option value="襄阳">
-          <option value="湘潭">            <option value="邢台">
-          <option value="咸阳">            <option value="西宁">
-          <option value="西双版纳">        <option value="新乡">
-          <!-- Y -->
-          <option value="扬州">            <option value="烟台">
-          <option value="宜昌">            <option value="银川">
-          <option value="盐城">            <option value="岳阳">
-          <option value="运城">            <option value="榆林">
-          <option value="延吉">            <option value="宜春">
-          <!-- Z -->
-          <option value="郑州">            <option value="珠海">
-          <option value="镇江">            <option value="中山">
-          <option value="漳州">            <option value="淄博">
-          <option value="湛江">            <option value="株洲">
-          <option value="舟山">            <option value="自贡">
-          <option value="遵义">            <option value="张家口">
-        </datalist>
-      </div>
-      <div class="form-group full">
-        <label>🛠️ 技能标签（点击选择）</label>
-        <div class="skill-tags" id="skillTags">
-          <span class="skill-tag" data-skill="Python">Python</span>
-          <span class="skill-tag" data-skill="Java">Java</span>
-          <span class="skill-tag" data-skill="JavaScript">JavaScript</span>
-          <span class="skill-tag" data-skill="C++">C++</span>
-          <span class="skill-tag" data-skill="Go">Go</span>
-          <span class="skill-tag" data-skill="Rust">Rust</span>
-          <span class="skill-tag" data-skill="SQL">SQL</span>
-          <span class="skill-tag" data-skill="React">React</span>
-          <span class="skill-tag" data-skill="Vue">Vue</span>
-          <span class="skill-tag" data-skill="Node.js">Node.js</span>
-          <span class="skill-tag" data-skill="Docker">Docker</span>
-          <span class="skill-tag" data-skill="Kubernetes">Kubernetes</span>
-          <span class="skill-tag" data-skill="AI/ML">AI/ML</span>
-          <span class="skill-tag" data-skill="数据分析">数据分析</span>
-          <span class="skill-tag" data-skill="产品设计">产品设计</span>
-          <span class="skill-tag" data-skill="Figma">Figma</span>
-          <span class="skill-tag" data-skill="项目管理">项目管理</span>
-          <span class="skill-tag" data-skill="用户研究">用户研究</span>
-          <span class="skill-tag" data-skill="AIGC">AIGC</span>
-          <span class="skill-tag" data-skill="Linux">Linux</span>
-        </div>
-      </div>
-      <div class="form-group full">
-        <label>📝 实习/项目经历简述</label>
-        <textarea id="experience" placeholder="请描述你的实习或项目经历，例如：在XX公司实习，负责XX项目，使用XX技术实现了XX功能..."></textarea>
-      </div>
-      <div class="form-group full">
-        <label>💡 职业兴趣与自我评价</label>
-        <textarea id="selfEval" placeholder="描述你的职业兴趣方向、个人优势、以及你理想的工作是什么样的..."></textarea>
-      </div>
+      <div class="form-group"><label>🎓 最高学历</label><select id="education"><option value="">请选择</option><option value="本科">本科</option><option value="硕士">硕士</option><option value="博士">博士</option><option value="大专">大专</option></select></div>
+      <div class="form-group"><label>📚 专业方向</label><input type="text" id="major" list="majorList" placeholder="如：计算机科学、软件工程..."><datalist id="majorList"><option value="经济学 · 经济学"><option value="经济学 · 金融学"><option value="管理学 · 工商管理"><option value="管理学 · 会计学"><option value="管理学 · 人力资源管理"><option value="工学 · 计算机科学与技术"><option value="工学 · 软件工程"><option value="工学 · 网络工程"><option value="工学 · 信息安全"><option value="工学 · 物联网工程"><option value="工学 · 数据科学与大数据技术"><option value="工学 · 人工智能"><option value="工学 · 智能科学与技术"><option value="工学 · 电子信息工程"><option value="工学 · 通信工程"><option value="工学 · 自动化"><option value="工学 · 机器人工程"><option value="工学 · 数字媒体技术"><option value="工学 · 机械工程"><option value="工学 · 电气工程及其自动化"><option value="工学 · 建筑学"><option value="工学 · 土木工程"><option value="工学 · 化学工程与工艺"><option value="工学 · 材料科学与工程"><option value="工学 · 环境工程"><option value="工学 · 生物医学工程"><option value="工学 · 航空航天工程"><option value="理学 · 数学与应用数学"><option value="理学 · 信息与计算科学"><option value="理学 · 物理学"><option value="理学 · 化学"><option value="理学 · 生物科学"><option value="理学 · 统计学"><option value="理学 · 心理学"><option value="文学 · 汉语言文学"><option value="文学 · 英语"><option value="文学 · 新闻学"><option value="文学 · 广告学"><option value="文学 · 网络与新媒体"><option value="法学 · 法学"><option value="法学 · 知识产权"><option value="法学 · 社会学"><option value="教育学 · 教育学"><option value="教育学 · 教育技术学"><option value="医学 · 临床医学"><option value="医学 · 药学"><option value="医学 · 护理学"><option value="艺术学 · 设计学"><option value="艺术学 · 视觉传达设计"><option value="艺术学 · 数字媒体艺术"><option value="艺术学 · 动画"><option value="农学 · 农学"><option value="历史学 · 历史学"><option value="哲学 · 哲学"></datalist></div>
+      <div class="form-group"><label>🏫 毕业院校</label><input type="text" id="school" list="schoolList" placeholder="如：清华大学"><datalist id="schoolList"><option value="清华大学"><option value="北京大学"><option value="中国人民大学"><option value="北京航空航天大学"><option value="北京理工大学"><option value="北京邮电大学"><option value="复旦大学"><option value="上海交通大学"><option value="同济大学"><option value="华东师范大学"><option value="中山大学"><option value="华南理工大学"><option value="浙江大学"><option value="南京大学"><option value="东南大学"><option value="武汉大学"><option value="华中科技大学"><option value="国防科技大学"><option value="中南大学"><option value="湖南大学"><option value="四川大学"><option value="电子科技大学"><option value="重庆大学"><option value="西安交通大学"><option value="西北工业大学"><option value="西安电子科技大学"><option value="南开大学"><option value="天津大学"><option value="山东大学"><option value="中国海洋大学"><option value="厦门大学"><option value="中国科学技术大学"><option value="合肥工业大学"><option value="哈尔滨工业大学"><option value="哈尔滨工程大学"><option value="吉林大学"><option value="大连理工大学"><option value="东北大学"><option value="郑州大学"><option value="兰州大学"><option value="中国科学院大学"><option value="南方科技大学"><option value="深圳大学"><option value="香港大学"><option value="香港中文大学"><option value="香港科技大学"></datalist></div>
+      <div class="form-group"><label>📅 毕业年份</label><select id="gradYear"><option value="">请选择</option><option value="2026">2026年</option><option value="2027">2027年</option><option value="2028">2028年</option><option value="2029">2029年</option><option value="2030">2030年</option></select></div>
+      <div class="form-group"><label>💼 期望岗位类型</label><select id="targetRole"><option value="">请选择</option><option value="技术研发">技术研发</option><option value="产品经理">产品经理</option><option value="数据分析">数据分析</option><option value="UI/UX设计">UI/UX设计</option><option value="运营">运营</option><option value="市场">市场</option><option value="人力资源">人力资源</option><option value="销售">销售</option></select></div>
+      <div class="form-group"><label>🏙️ 期望工作城市</label><input type="text" id="city" list="cityList" placeholder="如：深圳、北京、上海..."><datalist id="cityList"><option value="🔸 深圳"><option value="🔸 北京"><option value="🔸 上海"><option value="🔸 广州"><option value="🔸 杭州"><option value="🔸 成都"><option value="🔸 武汉"><option value="🔸 南京"><option value="🔸 西安"><option value="🔸 重庆"><option value="长沙"><option value="苏州"><option value="天津"><option value="大连"><option value="厦门"><option value="青岛"><option value="合肥"><option value="福州"><option value="济南"><option value="郑州"><option value="昆明"><option value="贵阳"><option value="南宁"><option value="海口"><option value="兰州"><option value="银川"><option value="西宁"><option value="乌鲁木齐"><option value="拉萨"></datalist></div>
+      <div class="form-group full"><label>🛠️ 技能标签（点击选择）</label><div class="skill-tags" id="skillTags"><span class="skill-tag" data-skill="Python">Python</span><span class="skill-tag" data-skill="Java">Java</span><span class="skill-tag" data-skill="JavaScript">JavaScript</span><span class="skill-tag" data-skill="C++">C++</span><span class="skill-tag" data-skill="Go">Go</span><span class="skill-tag" data-skill="Rust">Rust</span><span class="skill-tag" data-skill="SQL">SQL</span><span class="skill-tag" data-skill="React">React</span><span class="skill-tag" data-skill="Vue">Vue</span><span class="skill-tag" data-skill="Node.js">Node.js</span><span class="skill-tag" data-skill="Docker">Docker</span><span class="skill-tag" data-skill="Kubernetes">Kubernetes</span><span class="skill-tag" data-skill="AI/ML">AI/ML</span><span class="skill-tag" data-skill="数据分析">数据分析</span><span class="skill-tag" data-skill="产品设计">产品设计</span><span class="skill-tag" data-skill="Figma">Figma</span><span class="skill-tag" data-skill="项目管理">项目管理</span><span class="skill-tag" data-skill="用户研究">用户研究</span><span class="skill-tag" data-skill="AIGC">AIGC</span><span class="skill-tag" data-skill="Linux">Linux</span></div></div>
+      <div class="form-group full"><label>📝 实习/项目经历简述</label><textarea id="experience" placeholder="请描述你的实习或项目经历..."></textarea></div>
+      <div class="form-group full"><label>💡 职业兴趣与自我评价</label><textarea id="selfEval" placeholder="描述你的职业兴趣方向、个人优势..."></textarea></div>
     </div>
-    <div style="margin-top:24px; text-align:right;">
-      <button class="btn btn-primary btn-lg" onclick="startMatching()">
-        🚀 开始智能匹配
-      </button>
+    <div style="margin-top:24px; display:flex; gap:12px;">
+      <button class="btn btn-outline" onclick="resetForm()">🔄 清空重填</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary btn-lg" onclick="startMatching()">🚀 开始智能匹配</button>
     </div>
   </div>
 
   <!-- Loading -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p style="font-weight:600;">AI 正在分析你的背景信息...</p>
-    <p class="loading-text" id="loadingDetail">正在解析技能图谱...</p>
-  </div>
+  <div class="loading" id="loading"><div class="spinner"></div><p style="font-weight:600;">AI 正在分析你的背景信息...</p><p class="loading-text" id="loadingDetail">正在解析技能图谱...</p></div>
 
   <!-- Step 2: Job Matching Results -->
   <div class="card section-hidden" id="section-results">
     <h2>🎯 岗位匹配结果</h2>
-    <p class="subtitle">AI 已为你从海量岗位中筛选出最匹配的工作机会，按匹配度排序</p>
+    <p class="subtitle">AI 已为你从海量岗位中筛选出最匹配的工作机会 <span style="font-size:11px;color:var(--cyan)">（每日微调分数 ±3%）</span></p>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="reshuffleJobs()">🔀 换一批排序</button>
+      <button class="btn btn-outline btn-sm" onclick="rematch()">🔄 重新匹配</button>
+      <button class="btn btn-outline btn-sm" onclick="loadMoreJobs()" id="btnLoadMore">📦 加载更多岗位</button>
+    </div>
     <div id="jobResults"></div>
-    <div style="text-align:center; margin-top:24px;">
-      <button class="btn btn-primary btn-lg" onclick="goToResumeAnalysis()">
-        📄 下一步：分析我的简历匹配度 →
-      </button>
+    <div style="text-align:center;margin-top:24px;">
+      <button class="btn btn-primary btn-lg" onclick="goToResumeAnalysis()">📄 下一步：分析我的简历匹配度 →</button>
     </div>
   </div>
 
   <!-- Step 3: Resume Analysis -->
   <div class="card section-hidden" id="section-resume">
     <h2>📄 简历匹配深度分析</h2>
-    <p class="subtitle">粘贴你的简历内容和你心仪的岗位JD，AI 将深度分析匹配度并给出优化建议</p>
+    <p class="subtitle">粘贴你的简历和你心仪的岗位JD，AI 将深度分析匹配度并给出优化建议</p>
     <div class="form-grid">
-      <div class="form-group full">
-        <label>📋 请粘贴你的简历内容</label>
-        <textarea id="resumeContent" placeholder="请将你的简历内容粘贴在这里（支持纯文本）...&#10;&#10;例如：&#10;教育背景：XX大学 计算机科学 本科 2026届&#10;实习经历：XX科技公司 前端开发实习生...&#10;项目经历：参与XX项目，负责...&#10;技能：Python, JavaScript, React..." rows="8"></textarea>
-      </div>
-      <div class="form-group full">
-        <label>🎯 目标岗位描述 (JD)</label>
-        <textarea id="jobDescription" placeholder="请粘贴你想应聘的岗位JD...&#10;&#10;例如：&#10;岗位：前端开发工程师&#10;要求：熟悉React/Vue，了解Webpack...&#10;加分项：有开源项目经验，熟悉CI/CD..." rows="6"></textarea>
-      </div>
+      <div class="form-group full"><label>📋 请粘贴你的简历内容</label><textarea id="resumeContent" placeholder="请将你的简历内容粘贴在这里..." rows="8"></textarea></div>
+      <div class="form-group full"><label>🎯 目标岗位描述 (JD)</label><textarea id="jobDescription" placeholder="请粘贴你想应聘的岗位JD..." rows="6"></textarea></div>
     </div>
-    <div style="margin-top:16px; text-align:right;">
-      <button class="btn btn-outline" onclick="document.getElementById('section-resume').classList.remove('show');document.getElementById('section-results').classList.add('show');" style="margin-right:8px;">
-        ← 返回匹配结果
-      </button>
-      <button class="btn btn-primary btn-lg" onclick="analyzeResume()">
-        🔍 开始深度分析
-      </button>
+    <div style="margin-top:16px;text-align:right;">
+      <button class="btn btn-outline" onclick="goBackToResults()" style="margin-right:8px;">← 返回匹配结果</button>
+      <button class="btn btn-primary btn-lg" onclick="analyzeResume()">🔍 开始深度分析</button>
     </div>
     <div id="resumeAnalysis"></div>
   </div>
+
+  <!-- Step 4: Application Tracking -->
+  <div class="card section-hidden" id="section-tracking">
+    <h2>📊 投递追踪面板</h2>
+    <p class="subtitle">记录你的投递进度，追踪每个岗位的状态变化</p>
+    <div id="trackingPanel"></div>
+  </div>
+
+  <!-- Knowledge Tips -->
+  <div class="card" id="section-tips">
+    <h2>💡 求职锦囊 <span style="font-size:12px;color:var(--text-light);font-weight:400">— 点击展开详情</span></h2>
+    <div class="tips-grid" id="tipsGrid"></div>
+  </div>
 </div>
 
+<div class="confetti-container" id="confetti"></div>
+
 <script>
-// State
-let userProfile = {};
-let matchedJobs = [];
-
-// Skill tags interaction
-document.querySelectorAll('.skill-tag').forEach(tag => {
-  tag.addEventListener('click', () => {
-    tag.classList.toggle('selected');
-  });
-});
-
-// Job database (simulated)
-const jobDatabase = [
-  { id:1, title:'前端开发工程师', company:'腾讯', dept:'微信事业群', city:'深圳', salary:'25-40K',
-    tags:['JavaScript','React','Vue','Node.js'], degree:'本科',
-    desc:'参与微信生态前端开发，负责核心业务的前端架构设计与实现。',
-    matchKeys: ['JavaScript','React','Vue','前端','Web'] },
-  { id:2, title:'后端开发工程师', company:'腾讯', dept:'云与智慧产业', city:'深圳', salary:'25-45K',
-    tags:['Go','Java','Docker','Kubernetes'], degree:'本科',
-    desc:'负责腾讯云核心服务的后端开发，构建高并发分布式系统。',
-    matchKeys: ['Go','Java','Docker','Kubernetes','后端','分布式'] },
-  { id:3, title:'AI 算法工程师', company:'腾讯', dept:'AI Lab', city:'北京', salary:'30-50K',
-    tags:['Python','AI/ML','深度学习','NLP'], degree:'硕士',
-    desc:'参与大模型训练与推理优化，探索AI前沿技术落地。',
-    matchKeys: ['Python','AI','机器学习','深度学习','NLP','算法'] },
-  { id:4, title:'产品经理', company:'腾讯', dept:'互动娱乐', city:'上海', salary:'22-35K',
-    tags:['产品设计','用户研究','数据分析','项目管理'], degree:'本科',
-    desc:'负责游戏社交功能的产品策划与迭代，驱动用户增长。',
-    matchKeys: ['产品','用户研究','数据分析','项目管理'] },
-  { id:5, title:'数据分析师', company:'腾讯', dept:'CDG', city:'深圳', salary:'20-35K',
-    tags:['SQL','Python','数据分析','可视化'], degree:'本科',
-    desc:'基于海量用户数据进行分析建模，驱动业务决策。',
-    matchKeys: ['SQL','Python','数据分析','统计','可视化'] },
-  { id:6, title:'UI/UX设计师', company:'腾讯', dept:'设计部', city:'深圳', salary:'20-30K',
-    tags:['Figma','用户研究','产品设计','交互设计'], degree:'本科',
-    desc:'负责腾讯系产品的用户体验设计，打造极致的用户体验。',
-    matchKeys: ['设计','Figma','用户研究','交互','UI','UX'] },
-  { id:7, title:'DevOps工程师', company:'腾讯', dept:'TEG', city:'深圳', salary:'25-45K',
-    tags:['Docker','Kubernetes','Linux','CI/CD'], degree:'本科',
-    desc:'构建和维护大规模分布式系统的CI/CD基础设施。',
-    matchKeys: ['Docker','Kubernetes','Linux','DevOps','CI/CD'] },
-  { id:8, title:'AIGC应用开发', company:'腾讯', dept:'混元大模型', city:'北京', salary:'30-55K',
-    tags:['Python','AI/ML','AIGC','NLP'], degree:'硕士',
-    desc:'基于混元大模型构建AIGC应用，探索AI在内容创作中的落地。',
-    matchKeys: ['AI','AIGC','Python','大模型','NLP'] },
-];
-
-// Simulated AI matching engine
-function calculateMatchScore(profile, job) {
-  let score = 0;
-  const reasons = [];
-
-  // Skill match (40%)
-  const selectedSkills = profile.skills || [];
-  const matchedSkills = job.matchKeys.filter(k =>
-    selectedSkills.some(s => s.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(s.toLowerCase()))
-  );
-  const skillScore = matchedSkills.length / Math.max(job.matchKeys.length, 1) * 40;
-  score += skillScore;
-  if (matchedSkills.length > 0) reasons.push(`技能匹配: ${matchedSkills.join('、')}`);
-
-  // Role match (20%)
-  if (profile.targetRole && job.tags.some(t => profile.targetRole.includes(t) || t.includes(profile.targetRole))) {
-    score += 20;
-    reasons.push('岗位类型高度吻合');
-  } else if (profile.targetRole) {
-    score += 5;
-  }
-
-  // City match (10%)
-  if (profile.city && job.city.includes(profile.city)) {
-    score += 10;
-    reasons.push(`城市匹配: ${job.city}`);
-  }
-
-  // Education match (15%)
-  if (profile.education) {
-    if (job.degree === '本科' && ['本科','硕士','博士'].includes(profile.education)) { score += 15; reasons.push('学历满足要求'); }
-    else if (job.degree === '硕士' && ['硕士','博士'].includes(profile.education)) { score += 15; reasons.push('学历满足要求'); }
-    else if (job.degree === profile.education) { score += 15; reasons.push('学历匹配'); }
-  }
-
-  // Experience relevance (15%)
-  if (profile.experience) {
-    const expLower = profile.experience.toLowerCase();
-    const relevantTerms = job.matchKeys.filter(k => expLower.includes(k.toLowerCase()));
-    const expScore = Math.min(relevantTerms.length / 3, 1) * 15;
-    score += expScore;
-    if (relevantTerms.length > 0) reasons.push(`经历相关性: 涉及${relevantTerms.slice(0,3).join('、')}`);
-  }
-
-  return { score: Math.min(Math.round(score), 98), reasons };
-}
-
-// Start matching
-function startMatching() {
-  // Collect profile
-  const skills = Array.from(document.querySelectorAll('.skill-tag.selected')).map(t => t.dataset.skill);
-  const education = document.getElementById('education').value;
-  const major = document.getElementById('major').value.trim();
-
-  if (!education && !major && skills.length === 0) {
-    showToast('请至少填写学历、专业或选择技能标签', 'error');
-    return;
-  }
-
-  userProfile = {
-    education,
-    major,
-    school: document.getElementById('school').value.trim(),
-    gradYear: document.getElementById('gradYear').value,
-    targetRole: document.getElementById('targetRole').value,
-    city: document.getElementById('city').value.trim(),
-    skills,
-    experience: document.getElementById('experience').value.trim(),
-    selfEval: document.getElementById('selfEval').value.trim(),
-  };
-
-  // Show loading
-  document.getElementById('section-profile').style.display = 'none';
-  document.getElementById('loading').classList.add('show');
-
-  // Simulated AI processing steps
-  const loadingDetails = [
-    '正在解析技能图谱...',
-    '正在分析专业背景与岗位关联度...',
-    '正在评估项目经验权重...',
-    '正在匹配海量岗位数据库...',
-    '正在生成个性化推荐报告...',
-  ];
-  let detailIdx = 0;
-  const detailInterval = setInterval(() => {
-    detailIdx++;
-    if (detailIdx < loadingDetails.length) {
-      document.getElementById('loadingDetail').textContent = loadingDetails[detailIdx];
+// ==================== PARTICLE SYSTEM ====================
+(function(){
+  const c=document.getElementById('particleCanvas'),ctx=c.getContext('2d');
+  let w,h,particles=[];
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++){particles.push({x:Math.random()*w,y:Math.random()*h,r:1+Math.random()*2.5,vx:(Math.random()-0.5)*0.5,vy:-0.2-Math.random()*0.8,o:0.2+Math.random()*0.4})}
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.y<-10){p.y=h+10;p.x=Math.random()*w}
+      if(p.x<0)p.x=w;if(p.x>w)p.x=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(99,102,241,${p.o})`;ctx.fill();
+    });
+    // Draw connections
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(99,102,241,${0.06*(1-dist/100)})`;ctx.stroke()}
+      }
     }
-  }, 600);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
-  // Simulate AI processing delay
-  setTimeout(() => {
-    clearInterval(detailInterval);
-    document.getElementById('loading').classList.remove('show');
+// ==================== LOCAL STORAGE ====================
+const STORAGE_KEY='offer_catcher_v2';
+function loadState(){try{const s=localStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):null}catch(e){return null}}
+function saveState(state){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+let appState=loadState()||{profile:{},matchedJobs:[],favorites:{},applications:{},appliedJobs:{}};
 
-    // Calculate matches
-    matchedJobs = jobDatabase.map(job => {
-      const match = calculateMatchScore(userProfile, job);
-      return { ...job, ...match };
-    }).sort((a, b) => b.score - a.score);
+// ==================== STATE ====================
+let userProfile=appState.profile||{};
+let matchedJobs=appState.matchedJobs||[];
+let favorites=appState.favorites||{};
+let applications=appState.applications||{};
+let appliedJobs=appState.appliedJobs||{};
+let extendedJobsLoaded=false;
 
-    // Render results
-    renderJobResults();
-    document.getElementById('section-results').classList.add('show');
+// Skill tags
+document.querySelectorAll('.skill-tag').forEach(tag=>{tag.addEventListener('click',()=>{tag.classList.toggle('selected')})});
 
-    // Update steps
-    updateSteps(2);
-  }, 2500);
+// Restore form from saved state
+function restoreForm(){
+  if(!userProfile.education&&!userProfile.major)return;
+  document.getElementById('education').value=userProfile.education||'';
+  document.getElementById('major').value=userProfile.major||'';
+  document.getElementById('school').value=userProfile.school||'';
+  document.getElementById('gradYear').value=userProfile.gradYear||'';
+  document.getElementById('targetRole').value=userProfile.targetRole||'';
+  document.getElementById('city').value=userProfile.city||'';
+  document.getElementById('experience').value=userProfile.experience||'';
+  document.getElementById('selfEval').value=userProfile.selfEval||'';
+  if(userProfile.skills){document.querySelectorAll('.skill-tag').forEach(t=>{if(userProfile.skills.includes(t.dataset.skill))t.classList.add('selected')})}
+}
+restoreForm();
+
+// ==================== JOB DATABASE ====================
+const coreJobDB=[
+  {id:1,title:'前端开发工程师',company:'腾讯',dept:'微信事业群',city:'深圳',salary:'25-40K',tags:['JavaScript','React','Vue','Node.js'],degree:'本科',desc:'参与微信生态前端开发，负责核心业务的前端架构设计与实现，涉及小程序、公众号、视频号等多个平台。',matchKeys:['JavaScript','React','Vue','前端','Web','TypeScript']},
+  {id:2,title:'后端开发工程师',company:'腾讯',dept:'云与智慧产业',city:'深圳',salary:'25-45K',tags:['Go','Java','Docker','Kubernetes'],degree:'本科',desc:'负责腾讯云核心服务的后端开发，构建高并发分布式系统，支撑百万级QPS的业务场景。',matchKeys:['Go','Java','Docker','Kubernetes','后端','分布式','微服务']},
+  {id:3,title:'AI 算法工程师',company:'腾讯',dept:'AI Lab',city:'北京',salary:'30-50K',tags:['Python','AI/ML','深度学习','NLP'],degree:'硕士',desc:'参与大模型训练与推理优化，探索AI前沿技术落地，负责混元大模型的核心能力建设。',matchKeys:['Python','AI','机器学习','深度学习','NLP','算法','大模型']},
+  {id:4,title:'产品经理',company:'腾讯',dept:'互动娱乐',city:'上海',salary:'22-35K',tags:['产品设计','用户研究','数据分析','项目管理'],degree:'本科',desc:'负责游戏社交功能的产品策划与迭代，驱动用户增长与留存，管理DAU千万级产品。',matchKeys:['产品','用户研究','数据分析','项目管理','增长']},
+  {id:5,title:'数据分析师',company:'腾讯',dept:'CDG',city:'深圳',salary:'20-35K',tags:['SQL','Python','数据分析','可视化'],degree:'本科',desc:'基于海量用户数据进行分析建模，驱动业务决策，搭建数据看板和自动化分析Pipeline。',matchKeys:['SQL','Python','数据分析','统计','可视化','建模']},
+  {id:6,title:'UI/UX设计师',company:'腾讯',dept:'设计部',city:'深圳',salary:'20-30K',tags:['Figma','用户研究','产品设计','交互设计'],degree:'本科',desc:'负责腾讯系产品的用户体验设计，从用户调研到高保真原型，打造极致的用户体验。',matchKeys:['设计','Figma','用户研究','交互','UI','UX','体验']},
+  {id:7,title:'DevOps工程师',company:'腾讯',dept:'TEG',city:'深圳',salary:'25-45K',tags:['Docker','Kubernetes','Linux','CI/CD'],degree:'本科',desc:'构建和维护大规模分布式系统的CI/CD基础设施，推进云原生技术落地。',matchKeys:['Docker','Kubernetes','Linux','DevOps','CI/CD','云原生']},
+  {id:8,title:'AIGC应用开发',company:'腾讯',dept:'混元大模型',city:'北京',salary:'30-55K',tags:['Python','AI/ML','AIGC','NLP'],degree:'硕士',desc:'基于混元大模型构建AIGC应用，探索AI在内容创作、代码生成、智能客服中的落地。',matchKeys:['AI','AIGC','Python','大模型','NLP','应用']},
+  {id:9,title:'Java后端开发',company:'阿里巴巴',dept:'淘天集团',city:'杭州',salary:'25-45K',tags:['Java','Spring','MySQL','微服务'],degree:'本科',desc:'参与淘宝/天猫核心交易系统的后端开发，解决高并发场景下的数据一致性和性能优化问题。',matchKeys:['Java','Spring','MySQL','后端','分布式','高并发','微服务']},
+  {id:10,title:'推荐算法工程师',company:'字节跳动',dept:'抖音',city:'北京',salary:'35-60K',tags:['Python','推荐系统','深度学习','Spark'],degree:'硕士',desc:'负责抖音推荐系统的算法优化，提升用户留存和内容消费时长，日活数亿用户规模。',matchKeys:['Python','推荐','深度学习','算法','Spark','机器学习']},
+  {id:11,title:'前端架构师',company:'美团',dept:'到店事业群',city:'北京',salary:'30-50K',tags:['React','TypeScript','Node.js','微前端'],degree:'本科',desc:'负责美团到店业务的前端架构设计与技术选型，推动微前端架构在复杂业务场景中的落地。',matchKeys:['React','TypeScript','前端','架构','Node.js','微前端']},
+  {id:12,title:'测试开发工程师',company:'华为',dept:'2012实验室',city:'深圳',salary:'20-40K',tags:['Python','自动化测试','CI/CD','Linux'],degree:'本科',desc:'构建自动化测试框架和工具链，保障5G通信和云计算产品的质量与可靠性。',matchKeys:['Python','测试','自动化','CI/CD','Linux','质量']},
+];
+const extendedJobDB=[
+  {id:13,title:'数据工程师',company:'快手',dept:'数据平台',city:'北京',salary:'28-48K',tags:['Spark','Flink','Hive','Java'],degree:'本科',desc:'构建PB级数据处理Pipeline，支持实时与离线数据分析，为业务决策提供数据基础。',matchKeys:['Spark','Flink','Java','数据','SQL','ETL']},
+  {id:14,title:'安全工程师',company:'奇安信',dept:'安全研究中心',city:'北京',salary:'25-45K',tags:['安全攻防','Python','渗透测试','密码学'],degree:'本科',desc:'负责企业安全防护体系建设，包括漏洞挖掘、渗透测试和安全架构设计。',matchKeys:['安全','Python','渗透','Linux','网络']},
+  {id:15,title:'游戏策划',company:'米哈游',dept:'原神项目组',city:'上海',salary:'22-38K',tags:['游戏设计','数值策划','用户体验','剧情设计'],degree:'本科',desc:'参与开放世界游戏的系统策划，设计核心玩法循环和玩家成长体系。',matchKeys:['游戏','策划','设计','数值','剧情','用户体验']},
+  {id:16,title:'云计算架构师',company:'AWS',dept:'解决方案架构',city:'北京',salary:'35-65K',tags:['AWS','云计算','架构设计','Kubernetes'],degree:'本科',desc:'为企业客户设计云原生架构方案，涵盖计算/存储/网络/安全等多维度。',matchKeys:['云计算','架构','AWS','Kubernetes','Docker','网络']},
+  {id:17,title:'量化研究员',company:'幻方量化',dept:'研究部',city:'上海',salary:'40-80K',tags:['Python','C++','机器学习','金融'],degree:'硕士',desc:'利用机器学习和统计方法开发量化交易策略，管理数十亿规模的投资组合。',matchKeys:['Python','C++','机器学习','金融','统计','算法']},
+  {id:18,title:'自动驾驶算法工程师',company:'百度',dept:'Apollo',city:'北京',salary:'30-55K',tags:['C++','Python','计算机视觉','ROS'],degree:'硕士',desc:'参与L4级自动驾驶感知算法的研发与优化，处理多传感器融合和环境感知。',matchKeys:['C++','Python','算法','计算机视觉','深度学习','ROS']},
+];
+let jobDatabase=[...coreJobDB];
+
+// ==================== MATCHING ENGINE ====================
+function calculateMatchScore(profile,job){
+  let score=0;const reasons=[];
+  const selectedSkills=profile.skills||[];
+  const matchedSkills=job.matchKeys.filter(k=>selectedSkills.some(s=>s.toLowerCase().includes(k.toLowerCase())||k.toLowerCase().includes(s.toLowerCase())));
+  const skillScore=matchedSkills.length/Math.max(job.matchKeys.length,1)*40;score+=skillScore;
+  if(matchedSkills.length>0)reasons.push(`技能匹配:${matchedSkills.join('、')}`);
+  if(profile.targetRole&&job.tags.some(t=>profile.targetRole.includes(t)||t.includes(profile.targetRole))){score+=20;reasons.push('岗位类型高度吻合')}else if(profile.targetRole)score+=5;
+  if(profile.city&&job.city.includes(profile.city)){score+=10;reasons.push(`城市匹配:${job.city}`)}
+  if(profile.education){if(job.degree==='本科'&&['本科','硕士','博士'].includes(profile.education)){score+=15;reasons.push('学历满足要求')}else if(job.degree==='硕士'&&['硕士','博士'].includes(profile.education)){score+=15;reasons.push('学历满足要求')}else if(job.degree===profile.education){score+=15;reasons.push('学历匹配')}}
+  if(profile.experience){const expLower=profile.experience.toLowerCase();const relevantTerms=job.matchKeys.filter(k=>expLower.includes(k.toLowerCase()));const expScore=Math.min(relevantTerms.length/3,1)*15;score+=expScore;if(relevantTerms.length>0)reasons.push(`经历相关性:涉及${relevantTerms.slice(0,3).join('、')}`)}
+  // Daily variation ±3%
+  const seed=new Date().getDate();const variation=((seed*7+3)%7)-3;
+  return{score:Math.min(Math.max(Math.round(score+variation),1),98),reasons};
 }
 
-function renderJobResults() {
-  const container = document.getElementById('jobResults');
-  container.innerHTML = matchedJobs.map((job, idx) => {
-    const matchClass = job.score >= 75 ? 'match-high' : job.score >= 50 ? 'match-medium' : 'match-low';
-    return `
-      <div class="job-card" style="animation: fadeInUp ${0.2 + idx * 0.1}s ease;">
-        <div class="match-badge ${matchClass}">${job.score}%</div>
-        <div class="job-info">
-          <div class="job-title">${job.title} <span style="font-weight:400;font-size:14px;color:var(--text-light);">${job.dept}</span></div>
-          <div class="job-company">🏢 ${job.company} · 📍 ${job.city} · 💰 ${job.salary} · 🎓 ${job.degree}及以上</div>
-          <div class="job-tags">
-            ${job.tags.map(t => `<span class="job-tag">${t}</span>`).join('')}
-          </div>
-          <div style="margin-top:8px;font-size:14px;color:var(--text-light);">📝 ${job.desc}</div>
-          <div class="job-reason">
-            <strong>🤖 AI 匹配分析：</strong>${job.reasons.join('；')}
-          </div>
+// ==================== START MATCHING ====================
+function startMatching(){
+  const skills=Array.from(document.querySelectorAll('.skill-tag.selected')).map(t=>t.dataset.skill);
+  const education=document.getElementById('education').value;
+  const major=document.getElementById('major').value.trim();
+  if(!education&&!major&&skills.length===0){showToast('请至少填写学历、专业或选择技能标签','error');return}
+  userProfile={education,major,school:document.getElementById('school').value.trim(),gradYear:document.getElementById('gradYear').value,targetRole:document.getElementById('targetRole').value,city:document.getElementById('city').value.trim(),skills,experience:document.getElementById('experience').value.trim(),selfEval:document.getElementById('selfEval').value.trim()};
+  appState.profile=userProfile;saveState(appState);
+  document.getElementById('section-profile').style.display='none';
+  document.getElementById('loading').classList.add('show');
+  const loadingDetails=['正在解析技能图谱...','正在分析专业背景与岗位关联度...','正在评估项目经验权重...','正在匹配海量岗位数据库...','正在生成个性化推荐报告...'];
+  let detailIdx=0;
+  const detailInterval=setInterval(()=>{detailIdx++;if(detailIdx<loadingDetails.length)document.getElementById('loadingDetail').textContent=loadingDetails[detailIdx]},600);
+  setTimeout(()=>{
+    clearInterval(detailInterval);document.getElementById('loading').classList.remove('show');
+    matchedJobs=jobDatabase.map(job=>{const match=calculateMatchScore(userProfile,job);return{...job,...match}}).sort((a,b)=>b.score-a.score);
+    appState.matchedJobs=matchedJobs;saveState(appState);
+    renderJobResults();document.getElementById('section-results').classList.add('show');updateSteps(2);
+  },2500);
+}
+
+function renderJobResults(){
+  const container=document.getElementById('jobResults');
+  container.innerHTML=matchedJobs.map((job,idx)=>{
+    const matchClass=job.score>=75?'match-high':job.score>=50?'match-medium':'match-low';
+    const isFav=favorites[job.id];
+    return `<div class="job-card ${isFav?'favorited':''}" style="animation-delay:${idx*0.08}s">
+      <div class="match-badge ${matchClass}">${job.score}%</div>
+      <div class="job-info">
+        <div class="job-title">${job.title} <span style="font-weight:400;font-size:14px;color:var(--text-light);">${job.dept}</span></div>
+        <div class="job-company">🏢 ${job.company} · 📍 ${job.city} · 💰 ${job.salary} · 🎓 ${job.degree}及以上</div>
+        <div class="job-tags">${job.tags.map(t=>`<span class="job-tag">${t}</span>`).join('')}</div>
+        <div style="margin-top:8px;font-size:14px;color:var(--text-light);">📝 ${job.desc}</div>
+        <div class="job-reason"><strong>🤖 AI 匹配分析：</strong>${job.reasons.join('；')}</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn btn-sm ${isFav?'btn-success':'btn-outline'}" onclick="event.stopPropagation();toggleFavorite(${job.id})">${isFav?'❤️ 已收藏':'🤍 收藏'}</button>
+          <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();applyJob(${job.id})">📤 投递</button>
         </div>
       </div>
-    `;
+    </div>`;
   }).join('');
 }
 
-function goToResumeAnalysis() {
+// ==================== FAVORITES & APPLY ====================
+function toggleFavorite(jobId){favorites[jobId]=!favorites[jobId];appState.favorites=favorites;saveState(appState);renderJobResults();showToast(favorites[jobId]?'❤️ 已收藏该岗位':'已取消收藏','info')}
+function applyJob(jobId){
+  if(appliedJobs[jobId]){showToast('你已经投递过该岗位了','warn');return}
+  const job=jobDatabase.find(j=>j.id===jobId);if(!job)return;
+  appliedJobs[jobId]={jobId,title:job.title,company:job.company,city:job.city,appliedAt:new Date().toISOString(),status:'applied'};
+  applications[jobId]=appliedJobs[jobId];appState.appliedJobs=appliedJobs;appState.applications=applications;saveState(appState);
+  renderJobResults();showToast(`📤 已投递 ${job.company} - ${job.title}`,'success');
+  // Simulate status progression
+  setTimeout(()=>{if(appliedJobs[jobId]&&appliedJobs[jobId].status==='applied'){appliedJobs[jobId].status='screening';appState.appliedJobs=appliedJobs;saveState(appState);showToast(`📋 ${job.title} 进入简历筛选阶段`,'info')}},8000);
+}
+
+// ==================== RESHUFFLE / REMATCH / LOAD MORE ====================
+function reshuffleJobs(){matchedJobs=shuffle([...matchedJobs]);renderJobResults();showToast('🔀 已随机打乱排序','info')}
+function rematch(){
+  if(!userProfile.education&&!userProfile.major){showToast('请先填写个人信息','warn');return}
+  // Slightly adjust random seed to get different scores
+  matchedJobs=jobDatabase.map(job=>{const match=calculateMatchScore({...userProfile,skills:[...userProfile.skills||[]].sort(()=>Math.random()-0.5)},job);return{...job,...match}}).sort((a,b)=>b.score-a.score);
+  appState.matchedJobs=matchedJobs;saveState(appState);renderJobResults();showToast('🔄 已重新计算匹配度','info');
+}
+function loadMoreJobs(){
+  if(extendedJobsLoaded){showToast('已加载全部岗位','warn');return}
+  jobDatabase=[...jobDatabase,...extendedJobDB];extendedJobsLoaded=true;
+  document.getElementById('btnLoadMore').style.display='none';
+  // Rematch with extended pool
+  matchedJobs=jobDatabase.map(job=>{const match=calculateMatchScore(userProfile,job);return{...job,...match}}).sort((a,b)=>b.score-a.score);
+  appState.matchedJobs=matchedJobs;saveState(appState);renderJobResults();showToast(`📦 已加载 ${extendedJobDB.length} 个新岗位，共 ${jobDatabase.length} 个`,'success');
+}
+
+// ==================== RESUME ANALYSIS ====================
+function goToResumeAnalysis(){
   document.getElementById('section-results').classList.remove('show');
   document.getElementById('section-resume').classList.add('show');
-  // Auto-fill job description with top match
-  if (matchedJobs.length > 0 && !document.getElementById('jobDescription').value) {
-    const top = matchedJobs[0];
-    document.getElementById('jobDescription').value =
-      `【${top.title}】${top.company} - ${top.dept}\n地点：${top.city} | 薪资：${top.salary}\n要求：${top.tags.join('、')}\n描述：${top.desc}`;
-  }
+  if(matchedJobs.length>0&&!document.getElementById('jobDescription').value){const top=matchedJobs[0];document.getElementById('jobDescription').value=`【${top.title}】${top.company} - ${top.dept}\n地点：${top.city} | 薪资：${top.salary}\n要求：${top.tags.join('、')}\n描述：${top.desc}`}
   updateSteps(3);
 }
-
-function analyzeResume() {
-  const resume = document.getElementById('resumeContent').value.trim();
-  const jd = document.getElementById('jobDescription').value.trim();
-
-  if (!resume || !jd) {
-    showToast('请填写简历内容和目标岗位描述', 'error');
-    return;
-  }
-
-  // Simulated AI resume analysis
-  const analysis = generateResumeAnalysis(resume, jd, userProfile);
-  renderResumeAnalysis(analysis);
+function goBackToResults(){document.getElementById('section-resume').classList.remove('show');document.getElementById('section-results').classList.add('show');updateSteps(2)}
+function analyzeResume(){
+  const resume=document.getElementById('resumeContent').value.trim();const jd=document.getElementById('jobDescription').value.trim();
+  if(!resume||!jd){showToast('请填写简历内容和目标岗位描述','error');return}
+  const analysis=generateResumeAnalysis(resume,jd,userProfile);renderResumeAnalysis(analysis);
 }
-
-function generateResumeAnalysis(resume, jd, profile) {
-  const resumeLower = resume.toLowerCase();
-  const jdLower = jd.toLowerCase();
-
-  // Extract keywords from JD
-  const jdKeywords = ['Python','Java','JavaScript','React','Vue','SQL','AI','数据分析',
-    '项目管理','Docker','Kubernetes','Linux','Figma','用户研究','产品设计','AIGC',
-    '沟通能力','团队协作','问题解决','逻辑思维','创新','责任心','学习能力'];
-
-  const foundKeywords = jdKeywords.filter(k => resumeLower.includes(k.toLowerCase()));
-  const missingKeywords = jdKeywords.filter(k => jdLower.includes(k.toLowerCase()) && !resumeLower.includes(k.toLowerCase()));
-
-  // Calculate match score
-  const totalJdKeywords = jdKeywords.filter(k => jdLower.includes(k.toLowerCase())).length;
-  const matchRate = totalJdKeywords > 0 ? Math.round(foundKeywords.length / totalJdKeywords * 100) : 60;
-
-  // Generate strengths
-  const strengths = [];
-  if (foundKeywords.length >= 5) strengths.push(`简历覆盖了${foundKeywords.length}个目标岗位关键词（${foundKeywords.slice(0,5).join('、')}等），技术栈匹配度良好`);
-  if (resumeLower.includes('实习') || resumeLower.includes('项目')) strengths.push('具备实习/项目经验描述，有实际工程经验支撑');
-  if (resumeLower.includes('大学') || resumeLower.includes('学院')) strengths.push('教育背景信息完整，学历门槛满足');
-  if (profile.skills && profile.skills.length >= 4) strengths.push(`技能标签丰富（${profile.skills.length}项），展现多维能力`);
-
-  // Generate weaknesses
-  const weaknesses = [];
-  if (missingKeywords.length > 0) weaknesses.push(`JD中要求的"${missingKeywords.slice(0,3).join('、')}"等关键词未在简历中体现，可能被ATS筛选过滤`);
-  if (resume.length < 100) weaknesses.push('简历内容偏简略，建议补充更多量化成果和项目细节');
-  if (!resumeLower.includes('成果') && !resumeLower.includes('提升') && !resumeLower.includes('%')) weaknesses.push('简历中缺少量化成果描述（如"提升效率30%"），建议添加数据支撑');
-  if (!resumeLower.includes('团队') && !resumeLower.includes('协作')) weaknesses.push('缺少团队协作相关描述，建议体现沟通与合作能力');
-
-  // Generate suggestions
-  const suggestions = [
+function generateResumeAnalysis(resume,jd,profile){
+  const resumeLower=resume.toLowerCase(),jdLower=jd.toLowerCase();
+  const jdKeywords=['Python','Java','JavaScript','React','Vue','SQL','AI','数据分析','项目管理','Docker','Kubernetes','Linux','Figma','用户研究','产品设计','AIGC','沟通能力','团队协作','问题解决','逻辑思维','创新','责任心','学习能力','TypeScript','Go','Rust'];
+  const foundKeywords=jdKeywords.filter(k=>resumeLower.includes(k.toLowerCase()));
+  const missingKeywords=jdKeywords.filter(k=>jdLower.includes(k.toLowerCase())&&!resumeLower.includes(k.toLowerCase()));
+  const totalJdKeywords=jdKeywords.filter(k=>jdLower.includes(k.toLowerCase())).length;
+  const matchRate=totalJdKeywords>0?Math.round(foundKeywords.length/totalJdKeywords*100):60;
+  const strengths=[];
+  if(foundKeywords.length>=5)strengths.push(`简历覆盖了${foundKeywords.length}个目标岗位关键词（${foundKeywords.slice(0,5).join('、')}等），技术栈匹配度良好`);
+  if(resumeLower.includes('实习')||resumeLower.includes('项目'))strengths.push('具备实习/项目经验描述，有实际工程经验支撑');
+  if(resumeLower.includes('大学')||resumeLower.includes('学院'))strengths.push('教育背景信息完整，学历门槛满足');
+  if(profile.skills&&profile.skills.length>=4)strengths.push(`技能标签丰富（${profile.skills.length}项），展现多维能力`);
+  const weaknesses=[];
+  if(missingKeywords.length>0)weaknesses.push(`JD中要求的"${missingKeywords.slice(0,3).join('、')}"等关键词未在简历中体现，可能被ATS筛选过滤`);
+  if(resume.length<100)weaknesses.push('简历内容偏简略，建议补充更多量化成果和项目细节');
+  if(!resumeLower.includes('成果')&&!resumeLower.includes('提升')&&!resumeLower.includes('%'))weaknesses.push('简历中缺少量化成果描述（如"提升效率30%"），建议添加数据支撑');
+  if(!resumeLower.includes('团队')&&!resumeLower.includes('协作'))weaknesses.push('缺少团队协作相关描述，建议体现沟通与合作能力');
+  const suggestions=[
     `💡 <strong>关键词优化</strong>：在简历中自然融入缺失的关键词：${missingKeywords.slice(0,5).join('、')}，提升ATS筛选通过率`,
     `📊 <strong>量化成果</strong>：用具体数据描述项目成果，如"优化页面加载速度<b>40%</b>"、"服务<b>100万+</b>用户"`,
-    `🎯 <strong>针对性调整</strong>：将最匹配该岗位的经历放在简历前1/3位置，重点突出与${(jdLower.includes('前端')?'前端开发':jdLower.includes('后端')?'后端开发':jdLower.includes('算法')?'算法':'技术')}相关的项目`,
-    `📝 <strong>简历结构优化</strong>：建议采用"个人信息→技术栈→工作/项目经历→教育背景"的结构，确保HR在10秒内抓住重点`,
+    `🎯 <strong>针对性调整</strong>：将最匹配该岗位的经历放在简历前1/3位置，重点突出相关项目`,
+    `📝 <strong>简历结构优化</strong>：建议采用"个人信息→技术栈→工作/项目经历→教育背景"的结构`,
     `🔗 <strong>增加作品链接</strong>：如有GitHub、技术博客或作品集，建议添加到简历顶部`,
     `🎓 <strong>突出学习能力</strong>：如掌握的新技术是通过自学，建议在简历中体现快速学习能力`,
+    `🤖 <strong>AI工具使用</strong>：在简历中提及你使用的AI工具（如Copilot/Cursor），展示AI Native能力`,
+    `🌐 <strong>英文能力</strong>：如有英语证书或英文项目经验，建议在简历中突出体现`,
   ];
-
-  return { matchRate, strengths, weaknesses, suggestions, foundKeywords, missingKeywords };
+  return{matchRate,strengths,weaknesses,suggestions,foundKeywords,missingKeywords};
+}
+function renderResumeAnalysis(analysis){
+  const container=document.getElementById('resumeAnalysis');
+  container.innerHTML=`<div style="margin-top:24px;padding-top:24px;border-top:2px solid var(--border);">
+    <div style="text-align:center;margin-bottom:24px;"><div style="display:inline-block;position:relative;">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="60" fill="none" stroke="#334155" stroke-width="12"/>
+        <circle cx="70" cy="70" r="60" fill="none" stroke="${analysis.matchRate>=70?'#10b981':analysis.matchRate>=40?'#f59e0b':'#ef4444'}" stroke-width="12" stroke-dasharray="${2*Math.PI*60}" stroke-dashoffset="${2*Math.PI*60*(1-analysis.matchRate/100)}" stroke-linecap="round" transform="rotate(-90 70 70)" style="transition:stroke-dashoffset 1.5s ease;"/>
+        <text x="70" y="65" text-anchor="middle" font-size="32" font-weight="700" fill="#e2e8f0">${analysis.matchRate}%</text>
+        <text x="70" y="85" text-anchor="middle" font-size="12" fill="#94a3b8">匹配度</text>
+      </svg>
+    </div></div>
+    <h3 style="margin-bottom:12px;">✅ 简历优势 (${analysis.strengths.length}项)</h3>
+    ${analysis.strengths.map(s=>`<div class="analysis-item strength"><h4>👍 ${s}</h4></div>`).join('')}
+    <h3 style="margin-bottom:12px;margin-top:20px;">⚠️ 待改进点 (${analysis.weaknesses.length}项)</h3>
+    ${analysis.weaknesses.map(w=>`<div class="analysis-item weakness"><h4>🔧 ${w}</h4></div>`).join('')}
+    <h3 style="margin-bottom:12px;margin-top:20px;">🚀 AI 优化建议</h3>
+    ${analysis.suggestions.map(s=>`<div class="analysis-item suggestion"><h4>${s}</h4></div>`).join('')}
+    ${analysis.matchRate>=90?`<div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="launchConfetti()">🎉 太棒了！庆祝一下</button></div>`:''}
+  </div>`;
+  container.scrollIntoView({behavior:'smooth'});
 }
 
-function renderResumeAnalysis(analysis) {
-  const container = document.getElementById('resumeAnalysis');
-  container.innerHTML = `
-    <div style="margin-top:24px; padding-top:24px; border-top:2px solid var(--border);">
-      <div style="text-align:center; margin-bottom:24px;">
-        <div style="display:inline-block; position:relative;">
-          <svg width="140" height="140" viewBox="0 0 140 140">
-            <circle cx="70" cy="70" r="60" fill="none" stroke="#e2e8f0" stroke-width="12"/>
-            <circle cx="70" cy="70" r="60" fill="none" stroke="${analysis.matchRate >= 70 ? '#10b981' : analysis.matchRate >= 40 ? '#f59e0b' : '#ef4444'}"
-              stroke-width="12" stroke-dasharray="${2 * Math.PI * 60}"
-              stroke-dashoffset="${2 * Math.PI * 60 * (1 - analysis.matchRate / 100)}"
-              stroke-linecap="round" transform="rotate(-90 70 70)" style="transition: stroke-dashoffset 1.5s ease;"/>
-            <text x="70" y="65" text-anchor="middle" font-size="32" font-weight="700" fill="#1e293b">${analysis.matchRate}%</text>
-            <text x="70" y="85" text-anchor="middle" font-size="12" fill="#64748b">匹配度</text>
-          </svg>
-        </div>
-      </div>
-
-      <h3 style="margin-bottom:12px;">✅ 简历优势 (${analysis.strengths.length}项)</h3>
-      ${analysis.strengths.map(s => `
-        <div class="analysis-item strength"><h4>👍 ${s}</h4></div>
-      `).join('')}
-
-      <h3 style="margin-bottom:12px; margin-top:20px;">⚠️ 待改进点 (${analysis.weaknesses.length}项)</h3>
-      ${analysis.weaknesses.map(w => `
-        <div class="analysis-item weakness"><h4>🔧 ${w}</h4></div>
-      `).join('')}
-
-      <h3 style="margin-bottom:12px; margin-top:20px;">🚀 AI 优化建议</h3>
-      ${analysis.suggestions.map(s => `
-        <div class="analysis-item suggestion"><h4>${s}</h4></div>
-      `).join('')}
-
-      <div style="margin-top:20px; padding:16px; background:linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius:12px; text-align:center;">
-        <p style="font-weight:600;color:var(--primary);">💡 提示：根据AI建议修改简历后，可重新粘贴进行迭代分析</p>
-      </div>
-    </div>
-  `;
-  container.scrollIntoView({ behavior: 'smooth' });
+// ==================== TRACKING PANEL ====================
+function renderTracking(){
+  const apps=Object.values(appliedJobs);
+  if(apps.length===0){document.getElementById('trackingPanel').innerHTML='<p style="color:var(--text-light);text-align:center;padding:20px;">你还没有投递任何岗位。在匹配结果中点击"投递"按钮开始追踪。</p>';return}
+  const statusMap={applied:'已投递',screening:'简历筛选',interview:'面试中',offered:'已录用'};
+  const statusCls={applied:'applied',screening:'screening',interview:'interview',offered:'offered'};
+  document.getElementById('trackingPanel').innerHTML=`<table class="tracking-table"><thead><tr><th>岗位</th><th>公司</th><th>城市</th><th>投递时间</th><th>状态</th><th>操作</th></tr></thead><tbody>${apps.map(a=>`<tr><td><strong>${a.title}</strong></td><td>${a.company}</td><td>${a.city}</td><td>${new Date(a.appliedAt).toLocaleDateString('zh-CN')}</td><td><span class="status-dot ${statusCls[a.status]}"></span>${statusMap[a.status]}</td><td><button class="btn btn-sm btn-outline" onclick="advanceStatus(${a.jobId})">▶ 推进</button></td></tr>`).join('')}</tbody></table>`;
 }
 
-function updateSteps(active) {
-  document.querySelectorAll('.step').forEach((step, i) => {
-    const num = i + 1;
-    step.classList.remove('active', 'done');
-    if (num < active) step.classList.add('done');
-    if (num === active) step.classList.add('active');
-  });
+function advanceStatus(jobId){
+  const statusOrder=['applied','screening','interview','offered'];
+  const current=appliedJobs[jobId];if(!current)return;
+  const idx=statusOrder.indexOf(current.status);
+  if(idx<statusOrder.length-1){current.status=statusOrder[idx+1];appState.appliedJobs=appliedJobs;saveState(appState);renderTracking();showToast(`🔄 ${current.title} 状态更新为"${statusOrder[idx+1]==='offered'?'已录用':'面试中'}"`,'success')}
+  if(current.status==='offered')launchConfetti();
 }
 
-function showToast(msg, type) {
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+// ==================== KNOWLEDGE TIPS ====================
+const tips=[
+  {icon:'📝',title:'STAR法则写简历',desc:'每个项目经历用 Situation → Task → Action → Result 框架组织，HR平均只看7秒简历。'},
+  {icon:'🎯',title:'投递策略',desc:'梯度投递：30%冲刺大厂 + 40%匹配企业 + 30%保底。做好Excel进度追踪表。'},
+  {icon:'🤖',title:'善用AI工具',desc:'用AI辅助改简历、模拟面试、分析JD。会使用AI工具正在成为所有岗位的基础能力要求。'},
+  {icon:'🔗',title:'内推优先',desc:'找一个在职同事/学长内推，简历直达HR，回复率比海投高5-10倍。'},
+  {icon:'📊',title:'面试复盘',desc:'每场面试后当天写复盘笔记：被问了什么/卡在哪/答得好/怎么改进。持续复盘才能持续进步。'},
+  {icon:'💬',title:'薪资谈判',desc:'了解市场价(牛客Offer Show)，关注总包而非月薪，有多个offer可以善意竞争。'},
+  {icon:'🌐',title:'技术博客',desc:'坚持写技术博客/GitHub，面试官会Google你。有高质量的技术输出是极强的加分项。'},
+  {icon:'🧘',title:'心态管理',desc:'焦虑是正常的。把焦虑写下来变成行动清单。保持运动和睡眠，专注能控制的事。'},
+];
+function renderTips(){
+  document.getElementById('tipsGrid').innerHTML=tips.map((t,i)=>`<div class="tip-card" style="animation:cardFlyIn ${0.3+i*0.1}s ease both" onclick="showToast('💡 ${t.title}：${t.desc}','info')"><div class="tip-icon">${t.icon}</div><div class="tip-title">${t.title}</div><div class="tip-desc">${t.desc}</div></div>`).join('');
 }
+renderTips();
 
-// Reset to step 1
-document.querySelectorAll('.step').forEach(step => {
-  step.addEventListener('click', () => {
-    const s = parseInt(step.dataset.step);
-    if (s === 1) {
-      document.getElementById('section-profile').style.display = '';
-      document.getElementById('section-results').classList.remove('show');
-      document.getElementById('section-resume').classList.remove('show');
-      updateSteps(1);
-    }
-  });
-});
+// ==================== UTILS ====================
+function updateSteps(active){
+  document.querySelectorAll('.step').forEach((step,i)=>{const num=i+1;step.classList.remove('active','done');if(num<active)step.classList.add('done');if(num===active)step.classList.add('active')});
+  if(active===4)renderTracking();
+}
+function showToast(msg,type){const toast=document.createElement('div');toast.className=`toast ${type}`;toast.textContent=msg;document.body.appendChild(toast);setTimeout(()=>toast.remove(),3000)}
+function shuffle(arr){let m=arr.length,t,i;while(m){i=Math.floor(Math.random()*m--);t=arr[m];arr[m]=arr[i];arr[i]=t}return arr}
+function resetForm(){document.querySelectorAll('input[type="text"],textarea').forEach(el=>el.value='');document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);document.querySelectorAll('.skill-tag.selected').forEach(t=>t.classList.remove('selected'));userProfile={};appState.profile={};saveState(appState);showToast('🔄 表单已清空','info')}
+function launchConfetti(){const container=document.getElementById('confetti');const colors=['#fbbf24','#f97316','#10b981','#3b82f6','#8b5cf6','#ef4444','#ec4899','#14b8a6','#6366f1'];for(let i=0;i<80;i++){setTimeout(()=>{const piece=document.createElement('div');piece.className='confetti-piece';piece.style.cssText=`left:${Math.random()*100}%;top:-20px;width:${8+Math.random()*14}px;height:${8+Math.random()*14}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*3}s;border-radius:${Math.random()>0.5?'50%':'2px'};`;container.appendChild(piece);setTimeout(()=>piece.remove(),3500)},i*12)}}
 
-// Add keyframe animation
-const style = document.createElement('style');
-style.textContent = '@keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }';
-document.head.appendChild(style);
+// Step click navigation
+document.querySelectorAll('.step').forEach(step=>{step.addEventListener('click',()=>{const s=parseInt(step.dataset.step);if(s===1){document.getElementById('section-profile').style.display='';document.getElementById('section-results').classList.remove('show');document.getElementById('section-resume').classList.remove('show');document.getElementById('section-tracking').classList.remove('show');updateSteps(1)}else if(s===4){document.getElementById('section-tracking').classList.add('show');updateSteps(4);renderTracking()}})});
+
+// Restore matched jobs if exists
+if(matchedJobs.length>0){renderJobResults();document.getElementById('section-profile').style.display='none';document.getElementById('section-results').classList.add('show');updateSteps(2)}
 </script>
 </body>
 </html>
